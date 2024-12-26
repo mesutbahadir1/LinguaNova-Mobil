@@ -42,7 +42,7 @@ class _HomeState extends State<Home> {
     PostsModel(
         id: 1,
         title: "Artificial Intelligence",
-        image: 'https://app.talentifylab.com/storage/instructors/9fe78dff-82cf-488a-968f-dbd7656eb624/images/program_cover_image/resized/Yaf92bElDltq10eg2kI3mYnDCQgjYt7ziBLN51VI_resized.jpeg'),
+        image: 'https://app.talentifylab.com/storage/instructors/384f0f43-e921-445b-a016-99660014dfc4/images/program_cover_image/resized/bCfllFp4MALfnt48NiODP4hsNYCK87v21AdqS1DF_resized.jpeg'),
     PostsModel(
         id: 2,
         title: "Cyber Security",

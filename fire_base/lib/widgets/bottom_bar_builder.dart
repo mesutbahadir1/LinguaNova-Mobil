@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
+import '../ui/views/knowledge/knowledge_screen.dart';
+
 class BottomBarBuilder {
   static int _selectedIndex = 0;
 
   static Widget buildBottomNavigationBar(BuildContext context) {
     return BottomAppBar(
-      color: Color.fromRGBO(31, 31, 57, 1),
+      color: const Color.fromRGBO(31, 31, 57, 1),
       child: Row(
         mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -28,7 +30,17 @@ class BottomBarBuilder {
     return TextButton(
       onPressed: () {
         _selectedIndex = index;
-        (context as Element).markNeedsBuild(); // Yeniden çizim için güncelle
+
+        // Knowledge button için özel işlem
+        if (index == 1) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const KnowledgeScreen()),
+          );
+        } else {
+          // Diğer butonlar için yeniden çizim
+          (context as Element).markNeedsBuild();
+        }
       },
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -76,3 +88,4 @@ class BottomBarBuilder {
     );
   }
 }
+
