@@ -1,6 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fire_base/auth/login.dart';
 import 'package:fire_base/services/authService.dart';
+import 'package:fire_base/ui/views/knowledge/knowledge_screen.dart';
+import 'package:fire_base/ui/views/progress/progress_screen.dart';
 import 'package:fire_base/widgets/bottom_bar_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -10,9 +12,11 @@ import '../auth/google_login/google_auth.dart';
 import '../models/activity_model.dart';
 import '../models/post_model.dart';
 
+
 void main() {
   runApp(MyApp());
 }
+
 
 class MyApp extends StatelessWidget {
   @override
@@ -36,6 +40,7 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  int _selectedIndex = 0;
   bool loading = true;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final List<PostsModel> _posts = [
@@ -68,49 +73,78 @@ class _HomeState extends State<Home> {
     return Scaffold(
       backgroundColor: Color.fromRGBO(31, 31, 57, 1),
       key: _scaffoldKey,
-      bottomNavigationBar: BottomBarBuilder.buildBottomNavigationBar(context),
-      body: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.only(left: 20, right: 20, top: 50),
-            height: 180,
-            color: LightModeColors.HOME_HEADER_CONTAINER_COLOR,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Hi, Mesut',
-                      style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      'Lets start learning',
-                      style: TextStyle(fontSize: 18, color: Colors.white),
-                    ),
-                  ],
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 60),
-                  child: SvgPicture.asset('assets/icons/avatar.svg', height: 48),
-                ),
-              ],
-            ),
-          ),
-          Transform.translate(
-            offset: const Offset(0, -55),
-            child: _buildTotalLearnedContainer(context),
-          ),
-          Transform.translate(
-            offset: const Offset(0, -35),
-            child: _buildProgramCartContents(),
-          ),
-          Expanded(
-            child: _buildActivityContents(context),
-          ),
-        ],
+      bottomNavigationBar: BottomBarBuilder.buildBottomNavigationBar(
+        context,
+        selectedIndex: _selectedIndex,
+        onIndexChanged: (index) {
+          setState(() {
+            _selectedIndex = index;
+          });
+        },
       ),
+      body: _buildBody(),
+    );
+  }
+
+  Widget _buildBody() {
+    switch (_selectedIndex) {
+      case 0:
+        return _buildHomeContent();
+      case 1:
+        return const KnowledgeScreen();
+      case 2:
+        return const ProgressScreen();
+      case 3:
+        return const Center(child: Text('Program Screen', style: TextStyle(color: Colors.white)));
+      case 4:
+        return const Center(child: Text('Account Screen', style: TextStyle(color: Colors.white)));
+      default:
+        return _buildHomeContent();
+    }
+  }
+
+  Widget _buildHomeContent() {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.only(left: 20, right: 20, top: 50),
+          height: 180,
+          color: LightModeColors.HOME_HEADER_CONTAINER_COLOR,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Hi, Mesut',
+                    style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    'Lets start learning',
+                    style: TextStyle(fontSize: 18, color: Colors.white),
+                  ),
+                ],
+              ),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 60),
+                child: SvgPicture.asset('assets/icons/avatar.svg', height: 48),
+              ),
+            ],
+          ),
+        ),
+        Transform.translate(
+          offset: const Offset(0, -55),
+          child: _buildTotalLearnedContainer(context),
+        ),
+        Transform.translate(
+          offset: const Offset(0, -35),
+          child: _buildProgramCartContents(),
+        ),
+        Expanded(
+          child: _buildActivityContents(context),
+        ),
+      ],
     );
   }
 
@@ -262,3 +296,4 @@ class _HomeState extends State<Home> {
     );
   }
 }
+

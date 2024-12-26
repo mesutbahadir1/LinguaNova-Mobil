@@ -1,186 +1,190 @@
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:fire_base/app/constants/dark_mode_colors.dart';
 import 'package:flutter/material.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 
-import '../../../models/knowledge_library_list_model.dart';
-import '../../../widgets/bottom_bar_builder.dart';
 import 'knowledge_detail_screen.dart';
 
-class KnowledgeScreen extends StatefulWidget {
+class KnowledgeScreen extends StatelessWidget {
   const KnowledgeScreen({super.key});
 
   @override
-  State<KnowledgeScreen> createState() => _KnowledgeScreenState();
-}
-
-class _KnowledgeScreenState extends State<KnowledgeScreen> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  List<KnowledgeLibraryListModel> knowledgeList = [
-    KnowledgeLibraryListModel(
+  Widget build(BuildContext context) {
+    final List<KnowledgeItem> knowledgeList = [
+      KnowledgeItem(
         id: 1,
         title: "Agile Framework",
         imageUrl: "https://app.talentifylab.com/vendor/website/resized-images/e.g8.png",
-        knowledgeType: "Agile Project Management",
-        isComplete: true),
-    KnowledgeLibraryListModel(
+        knowledgeType: "Agile Project",
+        isComplete: true,
+      ),
+      KnowledgeItem(
         id: 2,
         title: "Project Management",
         imageUrl: "https://app.talentifylab.com/vendor/website/resized-images/e.g2.png",
         knowledgeType: "Project Management Methodologies",
-        isComplete: false),
-    KnowledgeLibraryListModel(
+        isComplete: false,
+      ),
+      KnowledgeItem(
         id: 3,
         title: "Java Framework",
         imageUrl: "https://app.talentifylab.com/vendor/website/resized-images/e.g3.png",
         knowledgeType: "Java Project Management",
-        isComplete: true),
-  ];
+        isComplete: true,
+      ),
+    ];
 
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromRGBO(31, 31, 57, 1),
-      key: _scaffoldKey,
+      backgroundColor: const Color.fromRGBO(31, 31, 57, 1),
       appBar: AppBar(
         centerTitle: true,
         title: const Text(
           "Knowledge Library",
-          style: TextStyle(color:Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
+          style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
         ),
-        backgroundColor: DarkModeColors.BACKGROUND_COLOR,
+        backgroundColor: const Color.fromRGBO(31, 31, 57, 1),
         shadowColor: Colors.transparent,
-        iconTheme: IconThemeData(color: Colors.white),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
-      bottomNavigationBar: BottomBarBuilder.buildBottomNavigationBar(context),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: _buildKnowledgeLibraryContainer(),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            children: [
+              GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 10.0,
+                  mainAxisSpacing: 10.0,
+                  childAspectRatio: 0.95,
+                ),
+                itemCount: knowledgeList.length,
+                itemBuilder: (context, index) {
+                  final item = knowledgeList[index];
+                  return KnowledgeCard(item: item);
+                },
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
+}
 
-  //extract it to widget? - same usage for exercise list screen
-  Widget _buildKnowledgeLibraryContainer() {
-    return GridView.builder(
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 10.0,
-        mainAxisSpacing: 10.0,
-        childAspectRatio: 0.95,
-      ),
-      itemCount: knowledgeList.length,
-      itemBuilder: (context, index) {
-        final KnowledgeLibraryListModel entry = knowledgeList[index];
-        final bool isCompleted = entry.isComplete;
-        int id=entry.id;
+class KnowledgeCard extends StatelessWidget {
+  final KnowledgeItem item;
 
-        return GestureDetector(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const KnowledgeDetailScreen(),
-              ),
-            );
-          },
-          child: Stack(
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  color: Color.fromRGBO(47, 47, 66, 1),
-                  borderRadius: BorderRadius.circular(12.0),
-                  border: Border.all(
-                    color: const Color(0xFFD3D3D3),
-                    width: 0.7,
-                  ),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ClipRRect(
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(12.0),
-                        topRight: Radius.circular(12.0),
-                      ),
-                      child: CachedNetworkImage(
-                        imageUrl: entry.imageUrl,
-                        height: MediaQuery.of(context).size.height * 0.11,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Center(
-                      child: AutoSizeText(
-                        entry.title,
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white
-                        ),
-                        maxLines: 1,
-                        //minFontSize: 16,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    SizedBox(
-                      height: 8,
-                    ),
-                    ClipRRect(
-                      borderRadius: const BorderRadius.only(
-                        bottomLeft: Radius.circular(12.0),
-                        bottomRight: Radius.circular(12.0),
-                      ),
-                      child: Container(
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(3.0),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 8.0),
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 5.0),
-                          child: Center(
-                            child: AutoSizeText(
-                              maxLines: 2,
-                              entry.knowledgeType,
-                              style: TextStyle(color: Colors.grey, fontSize: 15),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              if (isCompleted) _completedTextContainer(),
-            ],
+  const KnowledgeCard({
+    super.key,
+    required this.item,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const KnowledgeDetailScreen(),
           ),
         );
       },
-    );
-  }
-
-  Widget _completedTextContainer() {
-    return Positioned(
-      top: 0,
-      left: 0,
-      right: 0,
       child: Container(
-        decoration: const BoxDecoration(
-          color: Colors.green,
-          borderRadius: BorderRadius.only(topRight: Radius.circular(12.0), topLeft: Radius.circular(12.0)),
-        ),
-        padding: const EdgeInsets.symmetric(vertical: 4.0),
-        child: Center(
-          child: Text(
-            "Completed",
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+        decoration: BoxDecoration(
+          color: const Color.fromRGBO(47, 47, 66, 1),
+          borderRadius: BorderRadius.circular(12.0),
+          border: Border.all(
+            color: const Color(0xFFD3D3D3),
+            width: 0.7,
           ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (item.isComplete)
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 4.0),
+                decoration: const BoxDecoration(
+                  color: Colors.green,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(12.0),
+                    topRight: Radius.circular(12.0),
+                  ),
+                ),
+                child: const Center(
+                  child: Text(
+                    "Completed",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                    ),
+                  ),
+                ),
+              ),
+            ClipRRect(
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(item.isComplete ? 0 : 12.0),
+                topRight: Radius.circular(item.isComplete ? 0 : 12.0),
+              ),
+              child: CachedNetworkImage(
+                imageUrl: item.imageUrl,
+                height: MediaQuery.of(context).size.height * 0.11,
+                width: double.infinity,
+                fit: BoxFit.cover,
+              ),
+            ),
+            const SizedBox(height: 10),
+            Center(
+              child: AutoSizeText(
+                item.title,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 5.0),
+              child: Center(
+                child: AutoSizeText(
+                  item.knowledgeType,
+                  style: const TextStyle(
+                    color: Colors.grey,
+                    fontSize: 15,
+                  ),
+                  maxLines: 2,
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
+}
+
+class KnowledgeItem {
+  final int id;
+  final String title;
+  final String imageUrl;
+  final String knowledgeType;
+  final bool isComplete;
+
+  KnowledgeItem({
+    required this.id,
+    required this.title,
+    required this.imageUrl,
+    required this.knowledgeType,
+    required this.isComplete,
+  });
 }
