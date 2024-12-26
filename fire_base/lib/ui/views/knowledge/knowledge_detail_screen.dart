@@ -65,16 +65,16 @@ class _KnowledgeDetailScreenState extends State<KnowledgeDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
+      backgroundColor: Color.fromRGBO(31, 31, 57, 1),
       appBar: AppBar(
         centerTitle: true,
         title: Text(
           "${knowledge!.title}",
-          style: TextStyle(color: Theme.of(context).colorScheme.primary, fontSize: 22, fontWeight: FontWeight.bold),
+          style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
         ),
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        backgroundColor: Color.fromRGBO(31, 31, 57, 1),
         shadowColor: Colors.transparent,
-        iconTheme: IconThemeData(color: Theme.of(context).colorScheme.primary),
+        iconTheme: IconThemeData(color: Colors.white),
       ),
       body: _buildKnowledgeContainer(),
     );
@@ -124,7 +124,7 @@ class _KnowledgeDetailScreenState extends State<KnowledgeDetailScreen> {
                       child: Text(
                         knowledge!.contents[selectedIndex],
                         textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 20),
+                        style: TextStyle(fontSize: 20,color: Colors.white),
                       ),
                     ),
                     IconButton(
@@ -166,7 +166,7 @@ class _KnowledgeDetailScreenState extends State<KnowledgeDetailScreen> {
             ),
             child: Text(
               "Complete",
-              style: TextStyle(fontSize: 15),
+              style: TextStyle(fontSize: 15, color: Colors.white),
             ),
           ),
         ),

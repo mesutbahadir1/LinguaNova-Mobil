@@ -46,16 +46,17 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color.fromRGBO(31, 31, 57, 1),
       key: _scaffoldKey,
       appBar: AppBar(
         centerTitle: true,
         title: Text(
           "Exercise List",
-          style: TextStyle(color: Theme.of(context).colorScheme.primary, fontSize: 22, fontWeight: FontWeight.bold),
+          style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
         ),
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        backgroundColor: Color.fromRGBO(31, 31, 57, 1),
         shadowColor: Colors.transparent,
-        iconTheme: IconThemeData(color: Theme.of(context).colorScheme.primary),
+        iconTheme: IconThemeData(color: Colors.white),
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -90,7 +91,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
             children: [
               Container(
                 decoration: BoxDecoration(
-                  color: Theme.of(context).primaryColor,
+                  color: Color.fromRGBO(47, 47, 66, 1),
                   borderRadius: BorderRadius.circular(12.0),
                   border: Border.all(
                     color: const Color(0xFFD3D3D3),
@@ -119,6 +120,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.bold,
+                          color: Colors.white
                         ),
                         maxLines: 1,
                         minFontSize: 16,

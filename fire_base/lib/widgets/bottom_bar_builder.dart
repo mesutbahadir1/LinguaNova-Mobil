@@ -81,10 +81,7 @@ class BottomBarBuilder {
         (context as Element).markNeedsBuild(); // Yeniden çizim için güncelle
       },
       elevation: 0,
-      child: Icon(
-        Icons.pie_chart,
-        color: isActive ? const Color(0xFF3D5CFF) : Colors.grey,
-      ),
+
     );
   }
 }

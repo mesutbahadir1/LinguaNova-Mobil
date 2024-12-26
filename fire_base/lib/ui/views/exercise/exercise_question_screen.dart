@@ -195,16 +195,17 @@ class _ExerciseQuestionScreenState extends State<ExerciseQuestionScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color.fromRGBO(31, 31, 57, 1),
       key: _scaffoldKey,
       appBar: AppBar(
         centerTitle: true,
         title: Text(
           "Question Screen",
-          style: TextStyle(color: Theme.of(context).colorScheme.primary, fontSize: 22, fontWeight: FontWeight.bold),
+          style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
         ),
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        backgroundColor: Color.fromRGBO(31, 31, 57, 1),
         shadowColor: Colors.transparent,
-        iconTheme: IconThemeData(color: Theme.of(context).colorScheme.primary),
+        iconTheme: IconThemeData(color: Colors.white),
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -217,7 +218,7 @@ class _ExerciseQuestionScreenState extends State<ExerciseQuestionScreen> {
             ),
             Text(
               exercise?.title ?? '',
-              style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold,color: Colors.white),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),

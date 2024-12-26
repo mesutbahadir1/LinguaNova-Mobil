@@ -1,5 +1,6 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:fire_base/app/constants/dark_mode_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
@@ -40,19 +41,19 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color.fromRGBO(31, 31, 57, 1),
       key: _scaffoldKey,
       appBar: AppBar(
         centerTitle: true,
-        title: Text(
+        title: const Text(
           "Knowledge Library",
-          style: TextStyle(color: Theme.of(context).colorScheme.primary, fontSize: 22, fontWeight: FontWeight.bold),
+          style: TextStyle(color:Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
         ),
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        backgroundColor: DarkModeColors.BACKGROUND_COLOR,
         shadowColor: Colors.transparent,
-        iconTheme: IconThemeData(color: Theme.of(context).colorScheme.primary),
+        iconTheme: IconThemeData(color: Colors.white),
       ),
       bottomNavigationBar: BottomBarBuilder.buildBottomNavigationBar(context),
-      floatingActionButton: BottomBarBuilder.buildFloatingActionButton(context),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -78,7 +79,6 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> {
 
         return GestureDetector(
           onTap: () {
-            print("dsffs");
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -90,7 +90,7 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> {
             children: [
               Container(
                 decoration: BoxDecoration(
-                  color: Theme.of(context).primaryColor,
+                  color: Color.fromRGBO(47, 47, 66, 1),
                   borderRadius: BorderRadius.circular(12.0),
                   border: Border.all(
                     color: const Color(0xFFD3D3D3),
@@ -119,6 +119,7 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> {
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
+                          color: Colors.white
                         ),
                         maxLines: 1,
                         //minFontSize: 16,
