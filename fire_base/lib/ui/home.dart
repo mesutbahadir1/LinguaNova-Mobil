@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fire_base/auth/login.dart';
 import 'package:fire_base/services/authService.dart';
 import 'package:fire_base/ui/views/knowledge/knowledge_screen.dart';
+import 'package:fire_base/ui/views/program/program_screen.dart';
 import 'package:fire_base/ui/views/progress/progress_screen.dart';
 import 'package:fire_base/widgets/bottom_bar_builder.dart';
 import 'package:flutter/material.dart';
@@ -47,25 +48,21 @@ class _HomeState extends State<Home> {
     PostsModel(
         id: 1,
         title: "Artificial Intelligence",
-        image: 'https://app.talentifylab.com/storage/instructors/384f0f43-e921-445b-a016-99660014dfc4/images/program_cover_image/resized/bCfllFp4MALfnt48NiODP4hsNYCK87v21AdqS1DF_resized.jpeg'),
+        image: 'https://blog.lewolang.com/images/caa060e9d090a761b399310670dba684.jpg?w=400&h=300&fit=crop'),
     PostsModel(
         id: 2,
         title: "Cyber Security",
-        image: 'https://app.talentifylab.com/storage/instructors/384f0f43-e921-445b-a016-99660014dfc4/images/program_cover_image/resized/bCfllFp4MALfnt48NiODP4hsNYCK87v21AdqS1DF_resized.jpeg'),
+        image: 'https://expressenglish.ae/wp-content/uploads/2022/02/tips-improve-english.jpg'),
     PostsModel(
         id: 3,
         title: "Full Stack Java",
-        image: 'https://app.talentifylab.com/storage/instructors/f6aa19b5-27fc-48b8-9bcc-3e192ed23a41/images/program_cover_image/resized/gg6eMIRmZ9goZoFlps4Hbdni11nsWbrznGL188fS_resized.jpeg'),
-    PostsModel(
-        id: 4,
-        title: "SDET / QA Full Stack",
-        image: 'https://talentifylab.com/_next/image?url=http%3A%2F%2Fapp.talentifylab.com%2Fstorage%2Finstructors%2Ff49b555d-fc92-4386-a7c3-eb6a70befdc2%2Fimages%2Fprogram_cover_image%2Fresized%2FWC84RIWk7k7D6NxUsHgoo9uXiA8lE8tkh102fp1g_resized.jpeg&w=750&q=75'),
+        image: 'https://media.istockphoto.com/id/1047570732/vector/english.jpg?s=612x612&w=0&k=20&c=zgafUJxCytevU-ZRlrZlTEpw3mLlS_HQTIOHLjaSPPM='),
   ];
 
   final List<ActivityModel> _activities = [
     ActivityModel(id: 1, title: "Listening Section", completedActivityCount: 12, totalActivityCount: 24),
     ActivityModel(id: 2, title: "Article Section", completedActivityCount: 30, totalActivityCount: 44),
-    ActivityModel(id: 3, title: "Writing Section", completedActivityCount: 5, totalActivityCount: 24),
+    ActivityModel(id: 3, title: "Video Section", completedActivityCount: 5, totalActivityCount: 24),
   ];
 
   @override
@@ -95,7 +92,7 @@ class _HomeState extends State<Home> {
       case 2:
         return const ProgressScreen();
       case 3:
-        return const Center(child: Text('Program Screen', style: TextStyle(color: Colors.white)));
+        return const ProgramScreen();
       case 4:
         return const Center(child: Text('Account Screen', style: TextStyle(color: Colors.white)));
       default:
@@ -128,7 +125,9 @@ class _HomeState extends State<Home> {
               ),
               Padding(
                 padding: const EdgeInsets.only(bottom: 60),
-                child: SvgPicture.asset('assets/icons/avatar.svg', height: 48),
+                child: GestureDetector(onTap: () {
+                 AuthServices().signOut();
+                },child: SvgPicture.asset('assets/icons/avatar.svg', height: 48)),
               ),
             ],
           ),

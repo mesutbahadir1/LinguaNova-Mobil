@@ -58,114 +58,122 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.sizeOf(context).height;
+
     return Scaffold(
+      resizeToAvoidBottomInset: true, // Klavye açıldığında ekranın yeniden düzenlenmesini sağlar
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: SizedBox(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              SizedBox(
-                width: double.infinity,
-                height: height / 2.7,
-                child: Image.asset('assets/images/login.jpg'),
-              ),
-              TextFieldInput(
-                textEditingController: emailController,
-                hintText: "Enter your email",
-                icon: Icons.email,
-              ),
-              TextFieldInput(
-                textEditingController: passwordController,
-                isPass: true,
-                hintText: "Enter your password",
-                icon: Icons.lock,
-              ),
-              MyButtons(
-                onTap: login,
-                text: "Log In",
-              ),
-              const ForgotPassword(),
-              SizedBox(
-                height: height / 50,
-              ),
-              Row(
-                children: [
-                  Expanded(
-                    child: Container(height: 1, color: Colors.black26),
-                  ),
-                  const Text("  or  "),
-                  Expanded(
-                    child: Container(height: 1, color: Colors.black26),
-                  )
-                ],
-              ),
-              // for google login
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
-                child: ElevatedButton(
-                  style:
-                  ElevatedButton.styleFrom(backgroundColor: Colors.blueGrey),
-                  onPressed: () async {
-                    await FirebaseServices().signInWithGoogle();
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const Home(),
-                      ),
-                    );
-                  },
-                  child: Row(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        child: Image.network(
-                          "https://ouch-cdn2.icons8.com/VGHyfDgzIiyEwg3RIll1nYupfj653vnEPRLr0AeoJ8g/rs:fit:456:456/czM6Ly9pY29uczgu/b3VjaC1wcm9kLmFz/c2V0cy9wbmcvODg2/LzRjNzU2YThjLTQx/MjgtNGZlZS04MDNl/LTAwMTM0YzEwOTMy/Ny5wbmc.png",
-                          height: 35,
+        child: SingleChildScrollView( // Ekranın kaydırılabilir olmasını sağlar
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                SizedBox(
+                  width: double.infinity,
+                  height: height / 2.7,
+                  child: Image.asset('assets/images/login.jpg'),
+                ),
+                TextFieldInput(
+                  textEditingController: emailController,
+                  hintText: "Enter your email",
+                  icon: Icons.email,
+                ),
+                TextFieldInput(
+                  textEditingController: passwordController,
+                  isPass: true,
+                  hintText: "Enter your password",
+                  icon: Icons.lock,
+                ),
+                MyButtons(
+                  onTap: login,
+                  text: "Log In",
+                ),
+                const ForgotPassword(),
+                SizedBox(
+                  height: height / 50,
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(height: 1, color: Colors.black26),
+                    ),
+                    const Text("  or  "),
+                    Expanded(
+                      child: Container(height: 1, color: Colors.black26),
+                    )
+                  ],
+                ),
+                // for google login
+                Padding(
+                  padding:
+                  const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blueGrey),
+                    onPressed: () async {
+                      await FirebaseServices().signInWithGoogle();
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const Home(),
                         ),
-                      ),
-                      const SizedBox(width: 10),
-                      const Text(
-                        "Continue with Google",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                          color: Colors.white,
+                      );
+                    },
+                    child: Row(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          child: Image.network(
+                            "https://ouch-cdn2.icons8.com/VGHyfDgzIiyEwg3RIll1nYupfj653vnEPRLr0AeoJ8g/rs:fit:456:456/czM6Ly9pY29uczgu/b3VjaC1wcm9kLmFz/c2V0cy9wbmcvODg2/LzRjNzU2YThjLTQx/MjgtNGZlZS04MDNl/LTAwMTM0YzEwOTMy/Ny5wbmc.png",
+                            height: 35,
+                          ),
                         ),
-                      )
-                    ],
+                        const SizedBox(width: 10),
+                        const Text(
+                          "Continue with Google",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                            color: Colors.white,
+                          ),
+                        )
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              SizedBox(
-                height: height / 15,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "Don't have an account?",
-                    style: TextStyle(
-                      fontSize: 16,
+                SizedBox(
+                  height: height / 15,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "Don't have an account?",
+                      style: TextStyle(
+                        fontSize: 16,
+                      ),
                     ),
-                  ),
-                  SizedBox(
-                    width: 5,
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) => SignUp()));
-                    },
-                    child: Text(
-                      "Sign Up",
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    SizedBox(
+                      width: 5,
                     ),
-                  )
-                ],
-              )
-            ],
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => SignUp()));
+                      },
+                      child: Text(
+                        "Sign Up",
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                    )
+                  ],
+                )
+              ],
+            ),
           ),
         ),
       ),

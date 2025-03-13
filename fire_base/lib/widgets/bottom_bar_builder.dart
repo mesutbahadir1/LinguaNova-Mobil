@@ -12,7 +12,7 @@ class BottomBarBuilder {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: <Widget>[
           _buildButton(context, 0, selectedIndex, onIndexChanged, label: 'Home', icon: Icons.home),
-          _buildButton(context, 1, selectedIndex, onIndexChanged, label: 'Knowledge', icon: Icons.book),
+          _buildButton(context, 1, selectedIndex, onIndexChanged, label: 'Article', icon: Icons.book),
           _buildButton(context, 2, selectedIndex, onIndexChanged, label: 'Progress', icon: Icons.bar_chart),
           _buildButton(context, 3, selectedIndex, onIndexChanged, label: 'Program', icon: Icons.school),
           _buildButton(context, 4, selectedIndex, onIndexChanged, label: 'Account', icon: Icons.person),

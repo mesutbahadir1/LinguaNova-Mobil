@@ -26,10 +26,10 @@ class _KnowledgeDetailScreenState extends State<KnowledgeDetailScreen> {
     if (widget.knowledgeId == 1) {
       knowledge = KnowledgeLibraryModel(
           id: widget.knowledgeId,
-          title: "Agile Framework",
+          title: "Benefits Of Daily Exercise",
           imageUrl:
               "https://images.pexels.com/photos/1102909/pexels-photo-1102909.jpeg?cs=srgb&dl=pexels-jplenio-1102909.jpg&fm=jpg",
-          knowledgeType: "Agile Project Management",
+          knowledgeType: "Daily Exercise",
           contents: [
             "Choosing the right project management methodology is essential. This allows you to organize your work, standardize tasks and processes, organize time, estimate costs, and minimize risks. The right methodology helps you to be more efficient.",
             "Our platform goes beyond simply delivering content. It embraces the power of technology to provide personalized learning paths, adaptive assessments, and collaborative tools.",
@@ -38,7 +38,7 @@ class _KnowledgeDetailScreenState extends State<KnowledgeDetailScreen> {
     } else if (widget.knowledgeId == 2) {
       knowledge = KnowledgeLibraryModel(
           id: widget.knowledgeId,
-          title: "Project Management",
+          title: "Time Management",
           imageUrl: "https://cdn.pixabay.com/photo/2013/04/03/12/05/tree-99852_640.jpg",
           knowledgeType: "Project Management Methodologies",
           contents: [
@@ -49,7 +49,7 @@ class _KnowledgeDetailScreenState extends State<KnowledgeDetailScreen> {
     } else if (widget.knowledgeId == 3) {
       knowledge = KnowledgeLibraryModel(
           id: widget.knowledgeId,
-          title: "Java Framework",
+          title: "History of Internet",
           imageUrl:
               "https://webneel.com/daily/sites/default/files/images/daily/09-2019/beautiful-tree-photography-christophe-kiciak.jpg",
           knowledgeType: "Java Framework Management",

@@ -17,7 +17,7 @@ class _SignUpState extends State<SignUp> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController nameController = TextEditingController();
-  bool isLoading=false;
+  bool isLoading = false;
 
   @override
   void dispose() {
@@ -57,71 +57,80 @@ class _SignUpState extends State<SignUp> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.sizeOf(context).height;
     return Scaffold(
       backgroundColor: Colors.white,
+      resizeToAvoidBottomInset: true, // Klavye açıldığında ekranın yeniden boyutlandırılmasını sağlar
       body: SafeArea(
-        child: SizedBox(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              SizedBox(
-                width: double.infinity,
-                height: height / 2.8,
-                child: Image.asset('assets/images/signup1.jpeg'),
-              ),
-              TextFieldInput(
-                textEditingController: nameController,
-                hintText: "Enter your name",
-                icon: Icons.person,
-              ),
-              TextFieldInput(
-                textEditingController: emailController,
-                hintText: "Enter your email",
-                icon: Icons.email,
-              ),
-              TextFieldInput(
-                textEditingController: passwordController,
-                hintText: "Enter your password",
-                isPass: true,
-                icon: Icons.lock,
-              ),
-              MyButtons(
-                onTap: signupUser,
-                text: "Sign Up",
-              ),
-              SizedBox(
-                height: height / 15,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "Already have an account?",
-                    style: TextStyle(
-                      fontSize: 16,
+        child: SingleChildScrollView( // Scroll yapılmasını sağlar
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                SizedBox(
+                  width: double.infinity,
+                  height: height / 2.8,
+                  child: Image.asset('assets/images/signup1.jpeg'),
+                ),
+                TextFieldInput(
+                  textEditingController: nameController,
+                  hintText: "Enter your name",
+                  icon: Icons.person,
+                ),
+                TextFieldInput(
+                  textEditingController: emailController,
+                  hintText: "Enter your email",
+                  icon: Icons.email,
+                ),
+                TextFieldInput(
+                  textEditingController: passwordController,
+                  hintText: "Enter your password",
+                  isPass: true,
+                  icon: Icons.lock,
+                ),
+                MyButtons(
+                  onTap: signupUser,
+                  text: "Sign Up",
+                ),
+                SizedBox(
+                  height: height / 15,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text(
+                      "Already have an account?",
+                      style: TextStyle(
+                        fontSize: 16,
+                      ),
                     ),
-                  ),
-                  SizedBox(
-                    width: 5,
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) => LoginPage()));
-                    },
-                    child: Text(
-                      "Log In",
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    const SizedBox(
+                      width: 5,
                     ),
-                  )
-                ],
-              )
-            ],
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const LoginPage(),
+                          ),
+                        );
+                      },
+                      child: const Text(
+                        "Log In",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    )
+                  ],
+                )
+              ],
+            ),
           ),
         ),
       ),

@@ -19,25 +19,25 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
   List<ExerciseListModel> exerciseList = [
     ExerciseListModel(
         id: 1,
-        title: "Java Introduction",
+        title: "Question 1",
         imageUrl: "https://app.talentifylab.com/vendor/website/resized-images/e.g8.png",
         exerciseType: "Single Answer",
         isComplete: true),
     ExerciseListModel(
         id: 2,
-        title: "Java Introduction",
+        title: "Question 2",
         imageUrl: "https://app.talentifylab.com/vendor/website/resized-images/e.g2.png",
         exerciseType: "Multiple Answer",
         isComplete: false),
     ExerciseListModel(
         id: 3,
-        title: "Java Introduction",
+        title: "Question 3",
         imageUrl: "https://app.talentifylab.com/vendor/website/resized-images/e.g3.png",
         exerciseType: "Fill in the blank",
         isComplete: false),
     ExerciseListModel(
         id: 4,
-        title: "Java Introduction",
+        title: "Question 4",
         imageUrl: "https://app.talentifylab.com/vendor/website/resized-images/e.g4.png",
         exerciseType: "True/False",
         isComplete: true),

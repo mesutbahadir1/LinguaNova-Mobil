@@ -12,23 +12,23 @@ class KnowledgeScreen extends StatelessWidget {
     final List<KnowledgeItem> knowledgeList = [
       KnowledgeItem(
         id: 1,
-        title: "Agile Framework",
+        title: "Benefits Of Daily Exercise",
         imageUrl: "https://app.talentifylab.com/vendor/website/resized-images/e.g8.png",
-        knowledgeType: "Agile Project",
+        knowledgeType: "Daily Exercise",
         isComplete: true,
       ),
       KnowledgeItem(
         id: 2,
-        title: "Project Management",
+        title: "Time Management",
         imageUrl: "https://app.talentifylab.com/vendor/website/resized-images/e.g2.png",
-        knowledgeType: "Project Management Methodologies",
+        knowledgeType: "Management Methodologies",
         isComplete: false,
       ),
       KnowledgeItem(
         id: 3,
-        title: "Java Framework",
+        title: "History of Internet",
         imageUrl: "https://app.talentifylab.com/vendor/website/resized-images/e.g3.png",
-        knowledgeType: "Java Project Management",
+        knowledgeType: "Internet",
         isComplete: true,
       ),
     ];
@@ -38,7 +38,7 @@ class KnowledgeScreen extends StatelessWidget {
       appBar: AppBar(
         centerTitle: true,
         title: const Text(
-          "Knowledge Library",
+          "Article Library",
           style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
         ),
         backgroundColor: const Color.fromRGBO(31, 31, 57, 1),
