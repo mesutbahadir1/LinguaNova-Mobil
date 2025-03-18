@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fire_base/auth/login.dart';
+import 'package:fire_base/chatbot/generative_text_view.dart';
 import 'package:fire_base/services/authService.dart';
 import 'package:fire_base/ui/views/knowledge/knowledge_screen.dart';
 import 'package:fire_base/ui/views/program/program_screen.dart';
@@ -94,7 +95,7 @@ class _HomeState extends State<Home> {
       case 3:
         return const ProgramScreen();
       case 4:
-        return const Center(child: Text('Account Screen', style: TextStyle(color: Colors.white)));
+        return ChatView();
       default:
         return _buildHomeContent();
     }

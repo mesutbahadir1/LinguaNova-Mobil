@@ -268,6 +268,13 @@
             </list>
           </value>
         </entry>
+        <entry key="google_generative_ai">
+          <value>
+            <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/google_generative_ai-0.2.3/lib" />
+            </list>
+          </value>
+        </entry>
         <entry key="google_identity_services_web">
           <value>
             <list>
@@ -747,6 +754,7 @@
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_cache_manager-3.4.1/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_lints-3.0.2/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_svg-2.0.14/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/google_generative_ai-0.2.3/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/google_identity_services_web-0.3.1+4/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/google_sign_in-6.2.1/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/google_sign_in_android-6.1.30/lib" />
