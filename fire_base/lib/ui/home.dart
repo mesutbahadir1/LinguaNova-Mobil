@@ -3,7 +3,9 @@ import 'package:fire_base/auth/login.dart';
 import 'package:fire_base/chatbot/generative_text_view.dart';
 import 'package:fire_base/services/authService.dart';
 import 'package:fire_base/ui/views/knowledge/knowledge_screen.dart';
+import 'package:fire_base/ui/views/program/audio/audio_screen.dart';
 import 'package:fire_base/ui/views/program/program_screen.dart';
+import 'package:fire_base/ui/views/program/video/video_screen.dart';
 import 'package:fire_base/ui/views/progress/progress_screen.dart';
 import 'package:fire_base/widgets/bottom_bar_builder.dart';
 import 'package:flutter/material.dart';
@@ -93,7 +95,7 @@ class _HomeState extends State<Home> {
       case 2:
         return const ProgressScreen();
       case 3:
-        return const ProgramScreen();
+        return const VideoScreen();
       case 4:
         return ChatView();
       default:
@@ -127,7 +129,13 @@ class _HomeState extends State<Home> {
               Padding(
                 padding: const EdgeInsets.only(bottom: 60),
                 child: GestureDetector(onTap: () {
-                 AuthServices().signOut();
+                 //AuthServices().signOut();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AudioScreen(),
+                    ),
+                  );
                 },child: SvgPicture.asset('assets/icons/avatar.svg', height: 48)),
               ),
             ],
