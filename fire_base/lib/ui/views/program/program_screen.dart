@@ -4,8 +4,6 @@ import 'package:http/http.dart' as http;
 import 'dart:io';
 import 'package:http/io_client.dart';
 
-import '../../../app/constants/app_config.dart';
-
 class ProgramScreen extends StatefulWidget {
   const ProgramScreen({super.key});
 
@@ -14,50 +12,31 @@ class ProgramScreen extends StatefulWidget {
 }
 
 class _ProgramScreenState extends State<ProgramScreen> {
-  List<Map<String, dynamic>> comments = [];
+  TextEditingController idController = TextEditingController();
+  TextEditingController userIdController = TextEditingController();
+  TextEditingController articleIdController = TextEditingController();
+  TextEditingController levelController = TextEditingController();
 
-  // Form için kontrolcüler
-  TextEditingController titleController = TextEditingController();
-  TextEditingController contentController = TextEditingController();
-  TextEditingController stockIdController = TextEditingController(); // StockId için kontrolcü
+  Future<void> updateUserArticleProgress(int id) async {
+    // Kullanıcıdan alınan verileri birleştirip JSON formatında hazırlama
+    final userId = int.tryParse(userIdController.text); // Kullanıcıdan alınan UserId
+    final articleId = int.tryParse(articleIdController.text); // Kullanıcıdan alınan ArticleId
+    final level = int.tryParse(levelController.text); // Kullanıcıdan alınan Level
 
-  @override
-  void initState() {
-    super.initState();
-    fetchComments();
-  }
-
-  Future<void> fetchComments() async {
-    // Geçici olarak SSL sertifika doğrulamasını devre dışı bırakma
-    HttpClient client = HttpClient()
-      ..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
-    IOClient ioClient = IOClient(client);
-
-    final response = await ioClient.get(Uri.parse('${HTTPS_URL}/api/Comment/GetAllComments'));
-
-    if (response.statusCode == 200) {
-      List<dynamic> data = json.decode(response.body);
-      setState(() {
-        comments = data.map((e) => {'id': e['id'], 'title': e['title']}).toList();
-      });
-    } else {
-      throw Exception('Failed to load comments');
-    }
-  }
-
-  Future<void> createComment() async {
-    final stockId = int.tryParse(stockIdController.text); // Kullanıcıdan alınan stockId
-    if (stockId == null) {
+    if (userId == null || articleId == null || level == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a valid Stock ID!')),
+        const SnackBar(content: Text('Please enter valid values for UserId, ArticleId, and Level!')),
       );
       return;
     }
 
-    // Yorum verilerini hazırlama
-    final Map<String, dynamic> commentData = {
-      'title': titleController.text,
-      'content': contentController.text,
+    // 'isCompleted' değerini true olarak ayarlama
+    final Map<String, dynamic> userArticleProgressData = {
+      'id': id,
+      'userId': userId,
+      'articleId': articleId,
+      'level': level,
+      'isCompleted': true,  // Buradaki değeri 'true' yapıyoruz
     };
 
     // Geçici olarak SSL sertifika doğrulamasını devre dışı bırakma
@@ -66,25 +45,28 @@ class _ProgramScreenState extends State<ProgramScreen> {
     IOClient ioClient = IOClient(client);
 
     try {
-      final response = await ioClient.post(
-        Uri.parse('${HTTPS_URL}/api/Comment/CreateComment/$stockId'),
+      final response = await ioClient.put(
+        Uri.parse('http://10.0.62.204:5040/api/UserArticleProgress/$id'),
         headers: {'Content-Type': 'application/json'},
-        body: json.encode(commentData),
+        body: json.encode(userArticleProgressData),
       );
 
-      if (response.statusCode == 201) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Comment created successfully!')),
-        );
-        fetchComments(); // Yorumları yeniden çek
-        titleController.clear();
-        contentController.clear();
-        stockIdController.clear();
-      } else {
-        // API tarafından döndürülen hata mesajı
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to create comment: ${response.body}')),
-        );
+        final newLocation = response.headers['location'];
+        if (newLocation != null) {
+          final redirectedResponse = await ioClient.put(
+            Uri.parse(newLocation),
+            headers: {'Content-Type': 'application/json'},
+            body: json.encode(userArticleProgressData),
+          );
+          if (redirectedResponse.statusCode == 204) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('UserArticleProgress updated successfully!')),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Failed to update UserArticleProgress: ${redirectedResponse.body}')),
+            );
+          }
       }
     } catch (e) {
       print("Error: $e");
@@ -97,91 +79,50 @@ class _ProgramScreenState extends State<ProgramScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromRGBO(31, 31, 57, 1),
       appBar: AppBar(
-        centerTitle: true,
-        title: const Text(
-          "Program",
-          style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
-        ),
-        backgroundColor: const Color.fromRGBO(31, 31, 57, 1),
-        shadowColor: Colors.transparent,
-        iconTheme: const IconThemeData(color: Colors.white),
+        title: const Text('Update UserArticleProgress'),
+        backgroundColor: Colors.blue,
       ),
-      body: Column(
-        children: [
-          // Yorum ekleme formu
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              children: [
-                TextField(
-                  controller: stockIdController,
-                  decoration: const InputDecoration(
-                    labelText: 'Stock ID',
-                    labelStyle: TextStyle(color: Colors.white),
-                    fillColor: Colors.white,
-                    focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white),
-                    ),
-                  ),
-                  style: const TextStyle(color: Colors.white),
-                  keyboardType: TextInputType.number,
-                ),
-                const SizedBox(height: 10),
-                TextField(
-                  controller: titleController,
-                  decoration: const InputDecoration(
-                    labelText: 'Title',
-                    labelStyle: TextStyle(color: Colors.white),
-                    fillColor: Colors.white,
-                    focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white),
-                    ),
-                  ),
-                  style: const TextStyle(color: Colors.white),
-                ),
-                const SizedBox(height: 10),
-                TextField(
-                  controller: contentController,
-                  decoration: const InputDecoration(
-                    labelText: 'Content',
-                    labelStyle: TextStyle(color: Colors.white),
-                    fillColor: Colors.white,
-                    focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white),
-                    ),
-                  ),
-                  style: const TextStyle(color: Colors.white),
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: createComment, // Yorum ekleme fonksiyonu
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blueAccent,
-                  ),
-                  child: const Text('Add Comment'),
-                ),
-              ],
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            TextField(
+              controller: idController,
+              decoration: const InputDecoration(labelText: 'ID'),
+              keyboardType: TextInputType.number,
             ),
-          ),
-          // Yorumlar listesi
-          comments.isEmpty
-              ? const Center(child: CircularProgressIndicator())
-              : Expanded(
-            child: ListView.builder(
-              itemCount: comments.length,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text(
-                    "ID: ${comments[index]['id']} - ${comments[index]['title']}",
-                    style: const TextStyle(color: Colors.white, fontSize: 18),
-                  ),
-                );
+            TextField(
+              controller: userIdController,
+              decoration: const InputDecoration(labelText: 'User ID'),
+              keyboardType: TextInputType.number,
+            ),
+            TextField(
+              controller: articleIdController,
+              decoration: const InputDecoration(labelText: 'Article ID'),
+              keyboardType: TextInputType.number,
+            ),
+            TextField(
+              controller: levelController,
+              decoration: const InputDecoration(labelText: 'Level'),
+              keyboardType: TextInputType.number,
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                final id = int.tryParse(idController.text);
+                if (id != null) {
+                  updateUserArticleProgress(id);
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Please enter a valid ID!')),
+                  );
+                }
               },
+              child: const Text('Update Progress'),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
