@@ -95,7 +95,7 @@ class _HomeState extends State<Home> {
       case 2:
         return const ProgressScreen();
       case 3:
-        return ProgramScreen();
+        return const VideoScreen();
       case 4:
         return ChatView();
       default:

@@ -1,38 +1,55 @@
+import 'dart:convert';
+import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:fire_base/ui/views/program/video/video_detail_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:http/io_client.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:fire_base/ui/views/program/video/video_detail_screen.dart';
 
+import '../../../../app/constants/app_config.dart';
 
-class VideoScreen extends StatelessWidget {
+class VideoScreen extends StatefulWidget {
   const VideoScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final List<VideoItem> knowledgeList = [
-      VideoItem(
-        id: 1,
-        title: "Benefits Of Daily Exercise",
-        imageUrl: "https://app.talentifylab.com/vendor/website/resized-images/e.g8.png",
-        knowledgeType: "Daily Exercise",
-        isComplete: true,
-      ),
-      VideoItem(
-        id: 2,
-        title: "Time Management",
-        imageUrl: "https://app.talentifylab.com/vendor/website/resized-images/e.g2.png",
-        knowledgeType: "Management Methodologies",
-        isComplete: false,
-      ),
-      VideoItem(
-        id: 3,
-        title: "History of Internet",
-        imageUrl: "https://app.talentifylab.com/vendor/website/resized-images/e.g3.png",
-        knowledgeType: "Internet",
-        isComplete: true,
-      ),
-    ];
+  _VideoScreenState createState() => _VideoScreenState();
+}
 
+class _VideoScreenState extends State<VideoScreen> {
+  List<VideoItem> videoList = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchVideos();
+  }
+
+  Future<void> fetchVideos() async {
+    HttpClient client = HttpClient()
+      ..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+    IOClient ioClient = IOClient(client);
+
+    try {
+      final response = await ioClient.get(
+        Uri.parse('${HTTPS_URL}/api/UserVideoProgress/GetVideosByUserAndLevel?userId=1&level=1'),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        List<dynamic> data = json.decode(response.body);
+        setState(() {
+          videoList = data.map((item) => VideoItem.fromJson(item)).toList();
+        });
+      } else {
+        throw Exception('Failed to load videos');
+      }
+    } catch (e) {
+      print('Error fetching videos: $e');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color.fromRGBO(31, 31, 57, 1),
       appBar: AppBar(
@@ -45,28 +62,22 @@ class VideoScreen extends StatelessWidget {
         shadowColor: Colors.transparent,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            children: [
-              GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 10.0,
-                  mainAxisSpacing: 10.0,
-                  childAspectRatio: 0.95,
-                ),
-                itemCount: knowledgeList.length,
-                itemBuilder: (context, index) {
-                  final item = knowledgeList[index];
-                  return VideoCard(item: item);
-                },
-              ),
-            ],
+      body: videoList.isEmpty
+          ? const Center(child: CircularProgressIndicator())
+          : Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: GridView.builder(
+          itemCount: videoList.length,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 10.0,
+            mainAxisSpacing: 10.0,
+            childAspectRatio: 0.95,
           ),
+          itemBuilder: (context, index) {
+            final item = videoList[index];
+            return VideoCard(item: item);
+          },
         ),
       ),
     );
@@ -88,7 +99,7 @@ class VideoCard extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => VideoDetailScreen(),
+            builder: (context) => VideoDetailScreen(item: item),
           ),
         );
       },
@@ -104,7 +115,7 @@ class VideoCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (item.isComplete)
+            if (item.isCompleted)
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(vertical: 4.0),
@@ -128,42 +139,27 @@ class VideoCard extends StatelessWidget {
               ),
             ClipRRect(
               borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(item.isComplete ? 0 : 12.0),
-                topRight: Radius.circular(item.isComplete ? 0 : 12.0),
+                topLeft: Radius.circular(item.isCompleted ? 0 : 12.0),
+                topRight: Radius.circular(item.isCompleted ? 0 : 12.0),
               ),
               child: CachedNetworkImage(
-                imageUrl: item.imageUrl,
+                imageUrl: "https://app.talentifylab.com/vendor/website/resized-images/e.g2.png",
                 height: MediaQuery.of(context).size.height * 0.11,
                 width: double.infinity,
                 fit: BoxFit.cover,
               ),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 30),
             Center(
               child: AutoSizeText(
                 item.title,
                 style: const TextStyle(
-                  fontSize: 18,
+                  fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 5.0),
-              child: Center(
-                child: AutoSizeText(
-                  item.knowledgeType,
-                  style: const TextStyle(
-                    color: Colors.grey,
-                    fontSize: 15,
-                  ),
-                  maxLines: 2,
-                  textAlign: TextAlign.center,
-                ),
               ),
             ),
           ],
@@ -176,15 +172,22 @@ class VideoCard extends StatelessWidget {
 class VideoItem {
   final int id;
   final String title;
-  final String imageUrl;
-  final String knowledgeType;
-  final bool isComplete;
+  final String videoUrl;
+  final bool isCompleted;
 
   VideoItem({
     required this.id,
     required this.title,
-    required this.imageUrl,
-    required this.knowledgeType,
-    required this.isComplete,
+    required this.videoUrl,
+    required this.isCompleted,
   });
+
+  factory VideoItem.fromJson(Map<String, dynamic> json) {
+    return VideoItem(
+      id: json['id'],
+      title: json['title'],
+      videoUrl: json['url'],
+      isCompleted: json['isCompleted'],
+    );
+  }
 }

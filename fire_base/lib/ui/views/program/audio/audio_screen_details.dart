@@ -1,10 +1,14 @@
+import 'package:fire_base/ui/views/program/audio/audio_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:audio_session/audio_session.dart';
 import '../../exercise/exercise_screen.dart';
 
 class AudioDetailScreen extends StatefulWidget {
-  final String audioUrl = "https://www.book2.nl/book2/EN/SOUND/0703.mp3";
+  final AudioItem item;
+
+  const AudioDetailScreen({super.key, required this.item});
+
 
   @override
   State<AudioDetailScreen> createState() => _AudioDetailScreenState();
@@ -30,7 +34,7 @@ class _AudioDetailScreenState extends State<AudioDetailScreen> {
     await session.configure(AudioSessionConfiguration.speech());
 
     try {
-      await _audioPlayer.setUrl(widget.audioUrl);
+      await _audioPlayer.setUrl(widget.item.url);
 
       // Sesin toplam süresini alıyoruz
       _totalDuration = (await _audioPlayer.load())!;
@@ -165,7 +169,7 @@ class _AudioDetailScreenState extends State<AudioDetailScreen> {
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const ExerciseScreen(),
+                    builder: (context) => ExerciseScreen(itemId: widget.item.id,type: 3),
                   ),
                 );
               },

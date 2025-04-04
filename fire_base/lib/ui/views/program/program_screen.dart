@@ -4,6 +4,8 @@ import 'package:http/http.dart' as http;
 import 'dart:io';
 import 'package:http/io_client.dart';
 
+import '../../../app/constants/app_config.dart';
+
 class ProgramScreen extends StatefulWidget {
   const ProgramScreen({super.key});
 
@@ -46,7 +48,7 @@ class _ProgramScreenState extends State<ProgramScreen> {
 
     try {
       final response = await ioClient.put(
-        Uri.parse('http://10.0.62.204:5040/api/UserArticleProgress/$id'),
+        Uri.parse('${HTTPS_URL}/api/UserArticleProgress/$id'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode(userArticleProgressData),
       );

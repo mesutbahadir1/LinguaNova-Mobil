@@ -1,13 +1,24 @@
-import 'package:auto_size_text/auto_size_text.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:fire_base/ui/views/exercise/exercise_question_screen.dart';
+import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:auto_size_text/auto_size_text.dart';
+import 'package:http/io_client.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
-
+import '../../../app/constants/app_config.dart';
 import '../../../models/exercise_list_model.dart';
+import 'exercise_question_screen.dart';
 
 class ExerciseScreen extends StatefulWidget {
-  const ExerciseScreen({super.key});
+  final int itemId;
+  final int type; // 1 = Article, 2 = Video, 3 = Audio
+
+  const ExerciseScreen({
+    super.key,
+    required this.itemId,
+    required this.type,
+  });
 
   @override
   State<ExerciseScreen> createState() => _ExerciseScreenState();
@@ -16,32 +27,48 @@ class ExerciseScreen extends StatefulWidget {
 class _ExerciseScreenState extends State<ExerciseScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  List<ExerciseListModel> exerciseList = [
-    ExerciseListModel(
-        id: 1,
-        title: "Question 1",
-        imageUrl: "https://app.talentifylab.com/vendor/website/resized-images/e.g8.png",
-        exerciseType: "Single Answer",
-        isComplete: true),
-    ExerciseListModel(
-        id: 2,
-        title: "Question 2",
-        imageUrl: "https://app.talentifylab.com/vendor/website/resized-images/e.g2.png",
-        exerciseType: "Multiple Answer",
-        isComplete: false),
-    ExerciseListModel(
-        id: 3,
-        title: "Question 3",
-        imageUrl: "https://app.talentifylab.com/vendor/website/resized-images/e.g3.png",
-        exerciseType: "Fill in the blank",
-        isComplete: false),
-    ExerciseListModel(
-        id: 4,
-        title: "Question 4",
-        imageUrl: "https://app.talentifylab.com/vendor/website/resized-images/e.g4.png",
-        exerciseType: "True/False",
-        isComplete: true),
-  ];
+  List<ExerciseListModel> exerciseList = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchExercises();
+  }
+
+  Future<void> fetchExercises() async {
+    HttpClient client = HttpClient()
+      ..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+    IOClient ioClient = IOClient(client);
+
+    String url = '';
+    switch (widget.type) {
+      case 1: // Article
+        url = '${HTTPS_URL}/api/UserTestProgress/ArticleTests/1/${widget.itemId}';
+        break;
+      case 2: // Video
+        url = '${HTTPS_URL}/api/UserTestProgress/VideoTests/1/${widget.itemId}';
+        break;
+      case 3: // Audio (şimdilik hazır değil)
+         url = '${HTTPS_URL}/api/UserTestProgress/AudioTests/1/${widget.itemId}';
+         break;
+      default:
+        throw Exception("Invalid type provided");
+    }
+
+    final response = await ioClient.get(
+      Uri.parse(url),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode == 200) {
+      List<dynamic> data = json.decode(response.body);
+      setState(() {
+        exerciseList = data.map((item) => ExerciseListModel.fromJson(item)).toList();
+      });
+    } else {
+      throw Exception('Failed to load exercises for type ${widget.type}');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -76,14 +103,14 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
       itemCount: exerciseList.length,
       itemBuilder: (context, index) {
         final ExerciseListModel entry = exerciseList[index];
-        final bool isCompleted = entry.isComplete;
+        final bool isCompleted = entry.isCorrect;
 
         return GestureDetector(
           onTap: () {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => const ExerciseQuestionScreen(),
+                builder: (context) => ExerciseQuestionScreen(exercise: entry, type: widget.type,),
               ),
             );
           },
@@ -107,7 +134,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                         topRight: Radius.circular(12.0),
                       ),
                       child: CachedNetworkImage(
-                        imageUrl: entry.imageUrl,
+                        imageUrl: "https://app.talentifylab.com/vendor/website/resized-images/e.g3.png",
                         height: MediaQuery.sizeOf(context).height * 0.11,
                         width: double.infinity,
                         fit: BoxFit.cover,
@@ -116,11 +143,11 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                     const SizedBox(height: 20),
                     Center(
                       child: AutoSizeText(
-                        entry.title,
+                        "Questions",
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white
+                          color: Colors.white,
                         ),
                         maxLines: 1,
                         minFontSize: 16,
@@ -142,8 +169,12 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                         padding: const EdgeInsets.symmetric(vertical: 8.0),
                         child: Center(
                           child: Text(
-                            entry.exerciseType,
-                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+                            "Multiple Answer",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
+                            ),
                           ),
                         ),
                       ),
@@ -159,13 +190,20 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                   child: Container(
                     decoration: const BoxDecoration(
                       color: Colors.green,
-                      borderRadius: BorderRadius.only(topRight: Radius.circular(12.0), topLeft: Radius.circular(12.0)),
+                      borderRadius: BorderRadius.only(
+                        topRight: Radius.circular(12.0),
+                        topLeft: Radius.circular(12.0),
+                      ),
                     ),
                     padding: const EdgeInsets.symmetric(vertical: 4.0),
                     child: Center(
                       child: Text(
                         "Completed",
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                        ),
                       ),
                     ),
                   ),

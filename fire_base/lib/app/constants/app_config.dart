@@ -1,5 +1,5 @@
 const String APP_NAME = 'LinguaNova';
-const String HTTPS_URL="https://10.0.62.204:5041";
+const String HTTPS_URL="http://10.0.62.204:5040";
 
 /*
 * import 'package:flutter/material.dart';

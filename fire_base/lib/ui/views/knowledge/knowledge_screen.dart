@@ -1,38 +1,53 @@
+import 'dart:convert';
+import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:auto_size_text/auto_size_text.dart';
-
+import 'package:http/io_client.dart';
+import '../../../app/constants/app_config.dart';
 import 'knowledge_detail_screen.dart';
 
-class KnowledgeScreen extends StatelessWidget {
+class KnowledgeScreen extends StatefulWidget {
   const KnowledgeScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final List<KnowledgeItem> knowledgeList = [
-      KnowledgeItem(
-        id: 1,
-        title: "Benefits Of Daily Exercise",
-        imageUrl: "https://app.talentifylab.com/vendor/website/resized-images/e.g8.png",
-        knowledgeType: "Daily Exercise",
-        isComplete: true,
-      ),
-      KnowledgeItem(
-        id: 2,
-        title: "Time Management",
-        imageUrl: "https://app.talentifylab.com/vendor/website/resized-images/e.g2.png",
-        knowledgeType: "Management Methodologies",
-        isComplete: false,
-      ),
-      KnowledgeItem(
-        id: 3,
-        title: "History of Internet",
-        imageUrl: "https://app.talentifylab.com/vendor/website/resized-images/e.g3.png",
-        knowledgeType: "Internet",
-        isComplete: true,
-      ),
-    ];
+  _KnowledgeScreenState createState() => _KnowledgeScreenState();
+}
 
+class _KnowledgeScreenState extends State<KnowledgeScreen> {
+  List<KnowledgeItem> knowledgeList = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchArticles();
+  }
+
+  Future<void> fetchArticles() async {
+    HttpClient client = HttpClient()
+      ..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+    IOClient ioClient = IOClient(client);
+
+    try {
+      final response = await ioClient.get(
+        Uri.parse('${HTTPS_URL}/api/UserArticleProgress/GetArticlesByUserAndLevel?userId=1&level=1'),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        List<dynamic> data = json.decode(response.body);
+        setState(() {
+          knowledgeList = data.map((item) => KnowledgeItem.fromJson(item)).toList();
+        });
+      } else {
+        throw Exception('Failed to load articles');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color.fromRGBO(31, 31, 57, 1),
       appBar: AppBar(
@@ -45,28 +60,22 @@ class KnowledgeScreen extends StatelessWidget {
         shadowColor: Colors.transparent,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            children: [
-              GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 10.0,
-                  mainAxisSpacing: 10.0,
-                  childAspectRatio: 0.95,
-                ),
-                itemCount: knowledgeList.length,
-                itemBuilder: (context, index) {
-                  final item = knowledgeList[index];
-                  return KnowledgeCard(item: item);
-                },
-              ),
-            ],
+      body: knowledgeList.isEmpty
+          ? const Center(child: CircularProgressIndicator())
+          : Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: GridView.builder(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 10.0,
+            mainAxisSpacing: 10.0,
+            childAspectRatio: 0.95,
           ),
+          itemCount: knowledgeList.length,
+          itemBuilder: (context, index) {
+            final item = knowledgeList[index];
+            return KnowledgeCard(item: item);
+          },
         ),
       ),
     );
@@ -76,10 +85,7 @@ class KnowledgeScreen extends StatelessWidget {
 class KnowledgeCard extends StatelessWidget {
   final KnowledgeItem item;
 
-  const KnowledgeCard({
-    super.key,
-    required this.item,
-  });
+  const KnowledgeCard({super.key, required this.item});
 
   @override
   Widget build(BuildContext context) {
@@ -88,7 +94,7 @@ class KnowledgeCard extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => const KnowledgeDetailScreen(),
+            builder: (context) => KnowledgeDetailScreen(item: item),
           ),
         );
       },
@@ -127,43 +133,25 @@ class KnowledgeCard extends StatelessWidget {
                 ),
               ),
             ClipRRect(
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(item.isComplete ? 0 : 12.0),
-                topRight: Radius.circular(item.isComplete ? 0 : 12.0),
-              ),
+              borderRadius: BorderRadius.circular(12.0),
               child: CachedNetworkImage(
-                imageUrl: item.imageUrl,
+                imageUrl: "https://app.talentifylab.com/vendor/website/resized-images/e.g8.png",
                 height: MediaQuery.of(context).size.height * 0.11,
                 width: double.infinity,
                 fit: BoxFit.cover,
               ),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 20),
             Center(
-              child: AutoSizeText(
+              child: Text(
                 item.title,
                 style: const TextStyle(
-                  fontSize: 18,
+                  fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),
-                maxLines: 1,
+                maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 5.0),
-              child: Center(
-                child: AutoSizeText(
-                  item.knowledgeType,
-                  style: const TextStyle(
-                    color: Colors.grey,
-                    fontSize: 15,
-                  ),
-                  maxLines: 2,
-                  textAlign: TextAlign.center,
-                ),
               ),
             ),
           ],
@@ -176,15 +164,22 @@ class KnowledgeCard extends StatelessWidget {
 class KnowledgeItem {
   final int id;
   final String title;
-  final String imageUrl;
-  final String knowledgeType;
+  final String content;
   final bool isComplete;
 
   KnowledgeItem({
     required this.id,
     required this.title,
-    required this.imageUrl,
-    required this.knowledgeType,
+    required this.content,
     required this.isComplete,
   });
+
+  factory KnowledgeItem.fromJson(Map<String, dynamic> json) {
+    return KnowledgeItem(
+      id: json['id'],
+      title: json['title'],
+      content: json['content'],
+      isComplete: json['isCompleted'],
+    );
+  }
 }

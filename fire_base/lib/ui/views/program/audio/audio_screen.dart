@@ -1,39 +1,56 @@
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:fire_base/ui/views/program/audio/audio_screen_details.dart';
-import 'package:fire_base/ui/views/program/video/video_detail_screen.dart';
-import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/material.dart';
+import 'package:http/io_client.dart';
 
+import '../../../../app/constants/app_config.dart';
+import 'audio_screen_details.dart';
 
-class AudioScreen extends StatelessWidget {
+class AudioScreen extends StatefulWidget {
   const AudioScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final List<AudioItem> knowledgeList = [
-      AudioItem(
-        id: 1,
-        title: "Audio1",
-        imageUrl: "https://app.talentifylab.com/vendor/website/resized-images/e.g8.png",
-        knowledgeType: "Daily Exercise",
-        isComplete: false,
-      ),
-      AudioItem(
-        id: 2,
-        title: "Audio2",
-        imageUrl: "https://app.talentifylab.com/vendor/website/resized-images/e.g2.png",
-        knowledgeType: "Management",
-        isComplete: false,
-      ),
-      AudioItem(
-        id: 3,
-        title: "Audio3",
-        imageUrl: "https://app.talentifylab.com/vendor/website/resized-images/e.g3.png",
-        knowledgeType: "Internet",
-        isComplete: true,
-      ),
-    ];
+  State<AudioScreen> createState() => _AudioScreenState();
+}
 
+class _AudioScreenState extends State<AudioScreen> {
+  List<AudioItem> audioList = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchAudios();
+  }
+
+  Future<void> fetchAudios() async {
+    HttpClient client = HttpClient()
+      ..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+    IOClient ioClient = IOClient(client);
+
+    try {
+      final response = await ioClient.get(
+        Uri.parse('${HTTPS_URL}/api/UserAudioProgress/GetAudiosByUserAndLevel?userId=1&level=1'),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        List<dynamic> data = json.decode(response.body);
+        setState(() {
+          audioList = data.map((item) => AudioItem.fromJson(item)).toList();
+        });
+      } else {
+        throw Exception('Failed to load audios');
+      }
+    } catch (e) {
+      print('Error fetching audios: $e');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color.fromRGBO(31, 31, 57, 1),
       appBar: AppBar(
@@ -46,28 +63,22 @@ class AudioScreen extends StatelessWidget {
         shadowColor: Colors.transparent,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            children: [
-              GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 10.0,
-                  mainAxisSpacing: 10.0,
-                  childAspectRatio: 0.95,
-                ),
-                itemCount: knowledgeList.length,
-                itemBuilder: (context, index) {
-                  final item = knowledgeList[index];
-                  return AudioCard(item: item);
-                },
-              ),
-            ],
+      body: audioList.isEmpty
+          ? const Center(child: CircularProgressIndicator())
+          : Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: GridView.builder(
+          itemCount: audioList.length,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 10.0,
+            mainAxisSpacing: 10.0,
+            childAspectRatio: 0.95,
           ),
+          itemBuilder: (context, index) {
+            final item = audioList[index];
+            return AudioCard(item: item);
+          },
         ),
       ),
     );
@@ -77,10 +88,7 @@ class AudioScreen extends StatelessWidget {
 class AudioCard extends StatelessWidget {
   final AudioItem item;
 
-  const AudioCard({
-    super.key,
-    required this.item,
-  });
+  const AudioCard({super.key, required this.item});
 
   @override
   Widget build(BuildContext context) {
@@ -89,7 +97,7 @@ class AudioCard extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => AudioDetailScreen(),
+            builder: (context) => AudioDetailScreen(item: item),
           ),
         );
       },
@@ -105,7 +113,7 @@ class AudioCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (item.isComplete)
+            if (item.isCompleted)
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(vertical: 4.0),
@@ -129,42 +137,27 @@ class AudioCard extends StatelessWidget {
               ),
             ClipRRect(
               borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(item.isComplete ? 0 : 12.0),
-                topRight: Radius.circular(item.isComplete ? 0 : 12.0),
+                topLeft: Radius.circular(item.isCompleted ? 0 : 12.0),
+                topRight: Radius.circular(item.isCompleted ? 0 : 12.0),
               ),
               child: CachedNetworkImage(
-                imageUrl: item.imageUrl,
+                imageUrl: "https://app.talentifylab.com/vendor/website/resized-images/e.g8.png",
                 height: MediaQuery.of(context).size.height * 0.11,
                 width: double.infinity,
                 fit: BoxFit.cover,
               ),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 20),
             Center(
               child: AutoSizeText(
                 item.title,
                 style: const TextStyle(
-                  fontSize: 18,
+                  fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 5.0),
-              child: Center(
-                child: AutoSizeText(
-                  item.knowledgeType,
-                  style: const TextStyle(
-                    color: Colors.grey,
-                    fontSize: 15,
-                  ),
-                  maxLines: 2,
-                  textAlign: TextAlign.center,
-                ),
               ),
             ),
           ],
@@ -177,15 +170,22 @@ class AudioCard extends StatelessWidget {
 class AudioItem {
   final int id;
   final String title;
-  final String imageUrl;
-  final String knowledgeType;
-  final bool isComplete;
+  final String url;
+  final bool isCompleted;
 
   AudioItem({
     required this.id,
     required this.title,
-    required this.imageUrl,
-    required this.knowledgeType,
-    required this.isComplete,
+    required this.url,
+    required this.isCompleted,
   });
+
+  factory AudioItem.fromJson(Map<String, dynamic> json) {
+    return AudioItem(
+      id: json['id'],
+      title: json['title'],
+      url: json['url'],
+      isCompleted: json['isCompleted'],
+    );
+  }
 }
