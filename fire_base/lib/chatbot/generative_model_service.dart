@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-
+import '../app/constants/app_config.dart';
 class GenerativeChatService {
-  final String baseUrl = 'http://192.168.1.157:5040/api/chatbot';
+  final String baseUrl = '$HTTPS_URL/api/chatbot';
   String _history = ''; // Private variable to store chat history
 
   // Mesajları göndermek için
