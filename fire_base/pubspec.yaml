@@ -53,6 +53,7 @@ dependencies:
   youtube_player_flutter: ^9.1.1
   just_audio: ^0.9.46
   audio_session: ^0.1.25
+  url_launcher: ^6.3.1
 
 
 

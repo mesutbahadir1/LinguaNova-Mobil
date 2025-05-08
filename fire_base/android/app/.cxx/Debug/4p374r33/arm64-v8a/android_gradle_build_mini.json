@@ -1,0 +1,20 @@
+{
+  "buildFiles": [
+    "/Users/mesut/development/flutter/packages/flutter_tools/gradle/src/main/groovy/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/Users/mesut/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+      "-C",
+      "/Users/mesut/LinguaNova/fire_base/android/app/.cxx/Debug/4p374r33/arm64-v8a",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/Users/mesut/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+    "-C",
+    "/Users/mesut/LinguaNova/fire_base/android/app/.cxx/Debug/4p374r33/arm64-v8a",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {}
+}

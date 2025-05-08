@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:http/io_client.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../app/constants/app_config.dart';
 import 'knowledge_detail_screen.dart';
 
@@ -16,35 +17,60 @@ class KnowledgeScreen extends StatefulWidget {
 class _KnowledgeScreenState extends State<KnowledgeScreen> {
   List<KnowledgeItem> knowledgeList = [];
 
+  int? userId;
   @override
   void initState() {
     super.initState();
-    fetchArticles();
+    _loadUserIdAndFetchArticles();
   }
+  void _loadUserIdAndFetchArticles() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int? id = prefs.getInt('userId');
 
-  Future<void> fetchArticles() async {
+    if (id != null) {
+      setState(() {
+        userId = id;
+      });
+      fetchArticles(id);
+    }
+  }
+  Future<void> fetchArticles(int userId) async {
     HttpClient client = HttpClient()
       ..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
     IOClient ioClient = IOClient(client);
 
     try {
-      final response = await ioClient.get(
-        Uri.parse('${HTTPS_URL}/api/UserArticleProgress/GetArticlesByUserAndLevel?userId=1&level=1'),
+      // Önce level bilgisini çek
+      final levelResponse = await ioClient.get(
+        Uri.parse('${HTTPS_URL}/api/User/level/$userId'),
         headers: {'Content-Type': 'application/json'},
       );
 
-      if (response.statusCode == 200) {
-        List<dynamic> data = json.decode(response.body);
-        setState(() {
-          knowledgeList = data.map((item) => KnowledgeItem.fromJson(item)).toList();
-        });
+      if (levelResponse.statusCode == 200) {
+        int level = int.parse(levelResponse.body);
+
+        // Şimdi level'e göre article'ları çek
+        final articlesResponse = await ioClient.get(
+          Uri.parse('${HTTPS_URL}/api/UserArticleProgress/GetArticlesByUserAndLevel?userId=$userId&level=$level'),
+          headers: {'Content-Type': 'application/json'},
+        );
+
+        if (articlesResponse.statusCode == 200) {
+          List<dynamic> data = json.decode(articlesResponse.body);
+          setState(() {
+            knowledgeList = data.map((item) => KnowledgeItem.fromJson(item)).toList();
+          });
+        } else {
+          throw Exception('Failed to load articles');
+        }
       } else {
-        throw Exception('Failed to load articles');
+        throw Exception('Failed to fetch user level');
       }
     } catch (e) {
       print('Error: $e');
     }
   }
+
 
   @override
   Widget build(BuildContext context) {

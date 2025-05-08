@@ -6,6 +6,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:http/io_client.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../app/constants/app_config.dart';
 import '../../../models/exercise_list_model.dart';
 import 'exercise_question_screen.dart';
@@ -28,11 +29,23 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   List<ExerciseListModel> exerciseList = [];
-
+  int? userId;
   @override
   void initState() {
     super.initState();
-    fetchExercises();
+    _loadUserIdAndFetchExercise();
+  }
+
+  void _loadUserIdAndFetchExercise() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int? id = prefs.getInt('userId');
+
+    if (id != null) {
+      setState(() {
+        userId = id;
+      });
+      fetchExercises();
+    }
   }
 
   Future<void> fetchExercises() async {
@@ -43,13 +56,13 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
     String url = '';
     switch (widget.type) {
       case 1: // Article
-        url = '${HTTPS_URL}/api/UserTestProgress/ArticleTests/1/${widget.itemId}';
+        url = '${HTTPS_URL}/api/UserTestProgress/ArticleTests/${userId}/${widget.itemId}';
         break;
       case 2: // Video
-        url = '${HTTPS_URL}/api/UserTestProgress/VideoTests/1/${widget.itemId}';
+        url = '${HTTPS_URL}/api/UserTestProgress/VideoTests/${userId}/${widget.itemId}';
         break;
       case 3: // Audio (şimdilik hazır değil)
-         url = '${HTTPS_URL}/api/UserTestProgress/AudioTests/1/${widget.itemId}';
+         url = '${HTTPS_URL}/api/UserTestProgress/AudioTests/${userId}/${widget.itemId}';
          break;
       default:
         throw Exception("Invalid type provided");

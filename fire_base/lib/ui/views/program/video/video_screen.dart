@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:http/io_client.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:fire_base/ui/views/program/video/video_detail_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../app/constants/app_config.dart';
 
@@ -18,10 +19,22 @@ class VideoScreen extends StatefulWidget {
 class _VideoScreenState extends State<VideoScreen> {
   List<VideoItem> videoList = [];
 
+  int? userId;
   @override
   void initState() {
     super.initState();
-    fetchVideos();
+    _loadUserIdAndFetchVideos();
+  }
+  void _loadUserIdAndFetchVideos() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int? id = prefs.getInt('userId');
+
+    if (id != null) {
+      setState(() {
+        userId = id;
+      });
+      fetchVideos();
+    }
   }
 
   Future<void> fetchVideos() async {
@@ -30,19 +43,33 @@ class _VideoScreenState extends State<VideoScreen> {
     IOClient ioClient = IOClient(client);
 
     try {
-      final response = await ioClient.get(
-        Uri.parse('${HTTPS_URL}/api/UserVideoProgress/GetVideosByUserAndLevel?userId=1&level=1'),
+
+      final levelResponse = await ioClient.get(
+        Uri.parse('${HTTPS_URL}/api/User/level/$userId'),
         headers: {'Content-Type': 'application/json'},
       );
 
-      if (response.statusCode == 200) {
-        List<dynamic> data = json.decode(response.body);
-        setState(() {
-          videoList = data.map((item) => VideoItem.fromJson(item)).toList();
-        });
-      } else {
-        throw Exception('Failed to load videos');
+      if (levelResponse.statusCode == 200) {
+        int level = int.parse(levelResponse.body);
+
+        final response = await ioClient.get(
+          Uri.parse('${HTTPS_URL}/api/UserVideoProgress/GetVideosByUserAndLevel?userId=${userId}&level=${level}'),
+          headers: {'Content-Type': 'application/json'},
+        );
+
+        if (response.statusCode == 200) {
+          List<dynamic> data = json.decode(response.body);
+          setState(() {
+            videoList = data.map((item) => VideoItem.fromJson(item)).toList();
+          });
+        } else {
+          throw Exception('Failed to load videos');
+        }
+      }else {
+        throw Exception('Failed to load id');
       }
+
+
     } catch (e) {
       print('Error fetching videos: $e');
     }

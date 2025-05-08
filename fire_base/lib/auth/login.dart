@@ -1,9 +1,16 @@
+import 'dart:convert';
+
+import 'package:fire_base/app/constants/app_config.dart';
 import 'package:fire_base/auth/forgot_password/forgot.dart';
 import 'package:fire_base/auth/sign_up.dart';
 import 'package:fire_base/ui/home.dart';
 import 'package:fire_base/widgets/text_field.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../provider/user_provider.dart';
 import '../services/authService.dart';
 import '../widgets/button.dart';
 import '../widgets/snackBar.dart';
@@ -21,6 +28,7 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController passwordController = TextEditingController();
   bool isLoading = false;
 
+
   @override
   void dispose() {
     super.dispose();
@@ -29,31 +37,51 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void login() async {
-    // set is loading to true.
     setState(() {
       isLoading = true;
     });
-    // login user using our authmethod
+
     String res = await AuthServices().loginUser(
-        email: emailController.text, password: passwordController.text);
+      email: emailController.text,
+      password: passwordController.text,
+    );
+
     if (res == "success") {
-      setState(() {
-        isLoading = false;
-      });
-      //navigate to the next screen
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => const Home(),
-        ),
-      );
+      try {
+        final response = await http.get(
+          Uri.parse('${HTTPS_URL}/api/User/getidbymail?email=${emailController.text}'),
+        );
+
+        if (response.statusCode == 200) {
+          int userId = int.parse(response.body);
+          //print(userId);
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setInt('userId', userId);
+          print(prefs.getInt('userId'));
+          await Future.delayed(Duration(milliseconds: 100));
+          setState(() {
+            isLoading = false;
+          });
+        } else {
+          setState(() {
+            isLoading = false;
+          });
+          showSnackBar(context, "User ID not found in backend");
+        }
+      } catch (e) {
+        setState(() {
+          isLoading = false;
+        });
+        showSnackBar(context, "An error occurred: $e");
+      }
     } else {
       setState(() {
         isLoading = false;
       });
-      // show error
       showSnackBar(context, res);
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -92,48 +120,6 @@ class _LoginPageState extends State<LoginPage> {
                 const ForgotPassword(),
                 SizedBox(
                   height: height / 50,
-                ),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Container(height: 1, color: Colors.black26),
-                    ),
-                    const Text("  or  "),
-                    Expanded(
-                      child: Container(height: 1, color: Colors.black26),
-                    )
-                  ],
-                ),
-                // for google login
-                Padding(
-                  padding:
-                  const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blueGrey),
-                    onPressed: () async {
-                      await FirebaseServices().signInWithGoogle();
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const Home(),
-                        ),
-                      );
-                    },
-                    child: Row(
-                      children: [
-                        const SizedBox(width: 10),
-                        const Text(
-                          "Continue with Google",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
-                            color: Colors.white,
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
                 ),
                 SizedBox(
                   height: height / 15,

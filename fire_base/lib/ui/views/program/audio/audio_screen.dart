@@ -5,6 +5,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:http/io_client.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../app/constants/app_config.dart';
 import 'audio_screen_details.dart';
@@ -19,10 +20,23 @@ class AudioScreen extends StatefulWidget {
 class _AudioScreenState extends State<AudioScreen> {
   List<AudioItem> audioList = [];
 
+  int? userId;
   @override
   void initState() {
     super.initState();
-    fetchAudios();
+    _loadUserIdAndFetchAudios();
+  }
+
+  void _loadUserIdAndFetchAudios() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int? id = prefs.getInt('userId');
+
+    if (id != null) {
+      setState(() {
+        userId = id;
+      });
+      fetchAudios();
+    }
   }
 
   Future<void> fetchAudios() async {
@@ -31,19 +45,33 @@ class _AudioScreenState extends State<AudioScreen> {
     IOClient ioClient = IOClient(client);
 
     try {
-      final response = await ioClient.get(
-        Uri.parse('${HTTPS_URL}/api/UserAudioProgress/GetAudiosByUserAndLevel?userId=1&level=1'),
+
+      final levelResponse = await ioClient.get(
+        Uri.parse('${HTTPS_URL}/api/User/level/$userId'),
         headers: {'Content-Type': 'application/json'},
       );
 
-      if (response.statusCode == 200) {
-        List<dynamic> data = json.decode(response.body);
-        setState(() {
-          audioList = data.map((item) => AudioItem.fromJson(item)).toList();
-        });
-      } else {
-        throw Exception('Failed to load audios');
+      if (levelResponse.statusCode == 200) {
+        int level = int.parse(levelResponse.body);
+
+        final response = await ioClient.get(
+          Uri.parse('${HTTPS_URL}/api/UserAudioProgress/GetAudiosByUserAndLevel?userId=${userId}&level=${level}'),
+          headers: {'Content-Type': 'application/json'},
+        );
+
+        if (response.statusCode == 200) {
+          List<dynamic> data = json.decode(response.body);
+          setState(() {
+            audioList = data.map((item) => AudioItem.fromJson(item)).toList();
+          });
+        } else {
+          throw Exception('Failed to load audios');
+        }
+      }else {
+        throw Exception('Failed to load user id');
       }
+
+
     } catch (e) {
       print('Error fetching audios: $e');
     }

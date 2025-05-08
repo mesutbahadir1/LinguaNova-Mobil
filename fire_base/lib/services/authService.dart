@@ -1,5 +1,12 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fire_base/app/constants/app_config.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/io_client.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthServices {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -28,6 +35,26 @@ class AuthServices {
         });
 
         res = "success";
+        HttpClient client = HttpClient()
+          ..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+        IOClient ioClient = IOClient(client);
+        var response = await http.post(
+          Uri.parse('${HTTPS_URL}/api/User/register'),
+          headers: {"Content-Type": "application/json"},
+          body: jsonEncode({
+            "username": name,
+            "email": email,
+            "password": password,
+          }),
+        );
+
+        if (response.statusCode == 201) {
+          return "success";
+        } else {
+          // Backend başarısızsa kullanıcıyı Firebase'den de silebilirsin
+          await cred.user?.delete();
+          return "Backend error: ${response.body}";
+        }
       }
     } catch (err) {
       return err.toString();
