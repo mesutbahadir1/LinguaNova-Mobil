@@ -55,7 +55,7 @@ class _ContactScreenState extends State<ContactScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "Email, call, or contact us with our social medias to learn how TalentifyLAB can solve your problem.",
+              "Email, call, or contact us with our social medias to learn how LinguaNova can solve your problem.",
               style: TextStyle(color: Colors.grey, fontSize: 15),
             ),
             const SizedBox(

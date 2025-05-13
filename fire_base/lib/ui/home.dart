@@ -49,15 +49,15 @@ class _HomeState extends State<Home> {
     PostsModel(
         id: 1,
         title: "Artificial Intelligence",
-        image: 'https://blog.lewolang.com/images/caa060e9d090a761b399310670dba684.jpg?w=400&h=300&fit=crop'),
+        image: 'assets/images/a1.jpeg'),
     PostsModel(
         id: 2,
         title: "Cyber Security",
-        image: 'https://expressenglish.ae/wp-content/uploads/2022/02/tips-improve-english.jpg'),
+        image: 'assets/images/a3.jpeg'),
     PostsModel(
         id: 3,
         title: "Full Stack Java",
-        image: 'https://media.istockphoto.com/id/1047570732/vector/english.jpg?s=612x612&w=0&k=20&c=zgafUJxCytevU-ZRlrZlTEpw3mLlS_HQTIOHLjaSPPM='),
+        image: 'assets/images/a2.jpeg'),
   ];
 
   int? userId;
@@ -406,14 +406,12 @@ class _HomeState extends State<Home> {
         children: [
           ClipRRect(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-            child: CachedNetworkImage(
-              height: 178,
-              width: double.infinity,
-              fit: BoxFit.cover,
-              imageUrl: post.image!,
-              placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
-              errorWidget: (context, url, error) => const Icon(Icons.error),
-            ),
+              child: Image.asset(
+                post.image!,
+                height: 178,
+                width: double.infinity,
+                fit: BoxFit.cover,
+              )
           ),
 
         ],

@@ -1,4 +1,5 @@
 import 'package:fire_base/ui/views/account/contact_screen.dart';
+import 'package:fire_base/ui/views/profile/edit_profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
@@ -55,7 +56,12 @@ class _AccountScreenState extends State<AccountScreen> {
                 title: Text("Profile", style: TextStyle(fontSize: 15,color: Colors.white)),
                 trailing: Icon(Icons.keyboard_arrow_right_rounded, size: 20, color: Colors.white,),
                 onTap: () {
-                  //Navigator.of(context).pushNamed(routeEditProfile);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => EditProfileScreen(),
+                    ),
+                  );
                 },
               ),
             ),
