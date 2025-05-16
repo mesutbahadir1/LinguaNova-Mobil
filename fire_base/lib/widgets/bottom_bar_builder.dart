@@ -1,21 +1,48 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class BottomBarBuilder {
   static Widget buildBottomNavigationBar(BuildContext context, {
     required int selectedIndex,
     required Function(int) onIndexChanged,
   }) {
+    // Function to ensure a clean navigation between screens
+    Future<void> _handleNavigation(int index) async {
+      // Skip if already on the same tab
+      if (index == selectedIndex) return;
+      
+      // Store current selection
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      
+      // Clear any caches to force refresh
+      // Force a refresh for all content views
+      await prefs.remove('lastContentRefresh');
+      
+      // Store the new tab index
+      await prefs.setInt('lastContentTab', index);
+      
+      // Immediately trigger navigation callback
+      onIndexChanged(index);
+      
+      // Force a refresh by removing all cached content for the new view
+      if (index >= 1 && index <= 3) {
+        // İçerik sayfalarının yükleme zamanlarını sıfırla
+        await prefs.remove('lastSuccessfulFetch_type$index');
+        print('BottomNav: Forced refresh for content type $index');
+      }
+    }
+    
     return BottomAppBar(
       color: const Color.fromRGBO(31, 31, 57, 1),
       child: Row(
         mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: <Widget>[
-          _buildButton(context, 0, selectedIndex, onIndexChanged, label: 'Home', icon: Icons.home),
-          _buildButton(context, 1, selectedIndex, onIndexChanged, label: 'Article', icon: Icons.book),
-          _buildButton(context, 2, selectedIndex, onIndexChanged, label: 'Progress', icon: Icons.bar_chart),
-          _buildButton(context, 3, selectedIndex, onIndexChanged, label: 'Program', icon: Icons.school),
-          _buildButton(context, 4, selectedIndex, onIndexChanged, label: 'Account', icon: Icons.person),
+          _buildButton(context, 0, selectedIndex, _handleNavigation, label: 'Home', icon: Icons.home),
+          _buildButton(context, 1, selectedIndex, _handleNavigation, label: 'Article', icon: Icons.book),
+          _buildButton(context, 2, selectedIndex, _handleNavigation, label: 'Audio', icon: Icons.headphones),
+          _buildButton(context, 3, selectedIndex, _handleNavigation, label: 'Video', icon: Icons.video_library),
+          _buildButton(context, 4, selectedIndex, _handleNavigation, label: 'Account', icon: Icons.person),
         ],
       ),
     );

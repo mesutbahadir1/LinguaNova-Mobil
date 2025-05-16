@@ -12,6 +12,7 @@ import 'package:fire_base/ui/views/program/audio/audio_screen.dart';
 import 'package:fire_base/ui/views/program/program_screen.dart';
 import 'package:fire_base/ui/views/program/video/video_screen.dart';
 import 'package:fire_base/ui/views/progress/progress_screen.dart';
+import 'package:fire_base/ui/views/quiz/content_list_screen.dart';
 import 'package:fire_base/widgets/bottom_bar_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -34,8 +35,6 @@ class Home extends StatefulWidget {
   @override
   State<Home> createState() => _HomeState();
 }
-
-
 
 class _HomeState extends State<Home> {
   int _selectedIndex = 0;
@@ -191,11 +190,11 @@ class _HomeState extends State<Home> {
       case 0:
         return _buildHomeContent();
       case 1:
-        return const KnowledgeScreen();
+        return ContentListScreen(key: UniqueKey(), type: 1);
       case 2:
-        return const AudioScreen();
+        return ContentListScreen(key: UniqueKey(), type: 3);
       case 3:
-        return const VideoScreen();
+        return ContentListScreen(key: UniqueKey(), type: 2);
       case 4:
         return AccountScreen();
       default:
@@ -372,50 +371,115 @@ class _HomeState extends State<Home> {
         padding: const EdgeInsets.only(top: 0),
         itemCount: _activities.length,
         itemBuilder: (context, index) {
-          return ListTile(
-            leading: CircularProgressIndicator(
-              color: Colors.white,
-              value: _activities[index].completedActivityCount /
-                  _activities[index].totalActivityCount,
-            ),
-            title: Text(
-              _activities[index].title,
-              style: TextStyle(fontSize: 15, color: Colors.white),
-            ),
-            trailing: Text(
-              "${_activities[index].completedActivityCount}/${_activities[index].totalActivityCount}",
-              style: TextStyle(fontSize: 14, color: Colors.white),
+          // Determine content type based on title
+          int contentType = 1; // Default to Article
+          if (_activities[index].title.contains("Audio")) {
+            contentType = 3;
+          } else if (_activities[index].title.contains("Video")) {
+            contentType = 2;
+          }
+          
+          return GestureDetector(
+            onTap: () {
+              // Navigate to the ContentListScreen with the appropriate type
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ContentListScreen(
+                    type: contentType,
+                  ),
+                ),
+              );
+            },
+            child: ListTile(
+              leading: CircularProgressIndicator(
+                color: Colors.white,
+                value: _activities[index].completedActivityCount /
+                    _activities[index].totalActivityCount,
+              ),
+              title: Text(
+                _activities[index].title,
+                style: TextStyle(fontSize: 15, color: Colors.white),
+              ),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    "${_activities[index].completedActivityCount}/${_activities[index].totalActivityCount}",
+                    style: TextStyle(fontSize: 14, color: Colors.white),
+                  ),
+                  Icon(Icons.chevron_right, color: Colors.white)
+                ],
+              ),
             ),
           );
         },
       ),
     );
   }
-}
 
   Widget _postsListView(PostsModel post) {
-    return Container(
-      width: 300,
-      margin: const EdgeInsets.symmetric(horizontal: 8),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200, width: 0.5),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-              child: Image.asset(
-                post.image!,
-                height: 178,
-                width: double.infinity,
-                fit: BoxFit.cover,
-              )
+    return GestureDetector(
+      onTap: () {
+        // Navigate to the ContentListScreen with type 1 (Article)
+        // You can modify this to choose different types based on your needs
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ContentListScreen(
+              type: 1, // Article type
+            ),
           ),
-
-        ],
+        );
+      },
+      child: Container(
+        width: 300,
+        margin: const EdgeInsets.symmetric(horizontal: 8),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.grey.shade200, width: 0.5),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                child: Image.asset(
+                  post.image!,
+                  height: 178,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                )
+            ),
+          ],
+        ),
       ),
     );
   }
+
+  Future<void> _preloadUserLevel() async {
+    if (userId == null) return;
+    
+    HttpClient client = HttpClient()
+      ..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+    IOClient ioClient = IOClient(client);
+    
+    try {
+      final response = await ioClient.get(
+        Uri.parse('${HTTPS_URL}/api/User/level/$userId'),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        int level = int.parse(response.body.trim());
+        
+        // Store level in SharedPreferences
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setInt('userLevel', level);
+      }
+    } catch (e) {
+      print('Error preloading user level: $e');
+    }
+  }
+}
 
