@@ -266,27 +266,76 @@ class _QuizFlowScreenState extends State<QuizFlowScreen> with SingleTickerProvid
     return GestureDetector(
       onTap: () => selectAnswer(index),
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
         margin: const EdgeInsets.symmetric(vertical: 8),
         decoration: BoxDecoration(
           color: selected
-              ? const Color.fromRGBO(0, 181, 80, 1)
+              ? Colors.purple.withOpacity(0.3)
               : const Color.fromRGBO(47, 47, 66, 1),
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: selected ? Colors.green : const Color(0xFFD3D3D3),
-            width: selected ? 2.0 : 0.7,
+            color: selected ? Colors.purple : Colors.purple.withOpacity(0.3),
+            width: selected ? 2.0 : 1.0,
           ),
-        ),
-        child: Center(
-          child: Text(
-            answer,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: selected ? Colors.purple.withOpacity(0.3) : Colors.black.withOpacity(0.1),
+              blurRadius: selected ? 8 : 4,
+              spreadRadius: selected ? 1 : 0,
+              offset: const Offset(0, 2),
             ),
-          ),
+          ],
+          gradient: selected
+              ? LinearGradient(
+                  colors: [
+                    const Color.fromRGBO(47, 47, 66, 1),
+                    Colors.purple.withOpacity(0.3),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                )
+              : null,
+        ),
+        child: Row(
+          children: [
+            // Selection indicator
+            Container(
+              width: 26,
+              height: 26,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: selected ? Colors.purple : Colors.transparent,
+                border: Border.all(
+                  color: selected ? Colors.purple : Colors.purple.withOpacity(0.5),
+                  width: 2,
+                ),
+              ),
+              child: selected
+                  ? const Icon(Icons.check, color: Colors.white, size: 16)
+                  : Center(
+                      child: Text(
+                        String.fromCharCode(index + 64), // A, B, C, D
+                        style: TextStyle(
+                          color: selected ? Colors.white : Colors.purple.withOpacity(0.7),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+            ),
+            const SizedBox(width: 14),
+            // Answer text
+            Expanded(
+              child: Text(
+                answer,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: selected ? FontWeight.bold : FontWeight.w500,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -294,32 +343,97 @@ class _QuizFlowScreenState extends State<QuizFlowScreen> with SingleTickerProvid
 
   Widget buildProgressIndicator() {
     final progress = (currentQuestionIndex + 1) / exercises.length;
+    final formattedProgress = (progress * 100).toInt();
 
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                "Question ${currentQuestionIndex + 1}/${exercises.length}",
-                style: TextStyle(color: Colors.white70, fontSize: 16),
+              // Question counter with badge
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: const Color.fromRGBO(47, 47, 66, 1),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: Colors.purple.withOpacity(0.3),
+                    width: 1,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.quiz, color: Colors.purple.withOpacity(0.7), size: 16),
+                    const SizedBox(width: 6),
+                    Text(
+                      "Question ${currentQuestionIndex + 1}/${exercises.length}",
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              Text(
-                "${(progress * 100).toInt()}%",
-                style: TextStyle(color: Colors.white70, fontSize: 16),
+              // Progress percentage with circular indicator
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: const Color.fromRGBO(47, 47, 66, 1),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: Colors.purple.withOpacity(0.3),
+                    width: 1,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                        value: progress,
+                        strokeWidth: 3,
+                        backgroundColor: Colors.grey.shade800,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          formattedProgress > 50 ? Colors.greenAccent : Colors.purpleAccent,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      "$formattedProgress%",
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
         ),
-        SizedBox(height: 8),
-        LinearProgressIndicator(
-          value: progress,
-          backgroundColor: Colors.grey[800],
-          valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
-          borderRadius: BorderRadius.circular(4),
-          minHeight: 8,
+        const SizedBox(height: 12),
+        // Linear progress bar
+        ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: Container(
+            height: 8,
+            child: LinearProgressIndicator(
+              value: progress,
+              backgroundColor: Colors.grey[800],
+              valueColor: AlwaysStoppedAnimation<Color>(
+                formattedProgress > 50 ? Colors.greenAccent : Colors.purpleAccent,
+              ),
+              borderRadius: BorderRadius.circular(4),
+              minHeight: 8,
+            ),
+          ),
         ),
       ],
     );
@@ -328,17 +442,40 @@ class _QuizFlowScreenState extends State<QuizFlowScreen> with SingleTickerProvid
   Widget buildQuizContent() {
     if (isLoading) {
       return Center(
-        child: CircularProgressIndicator(
-          color: Colors.white,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircularProgressIndicator(
+              color: Colors.purpleAccent,
+              strokeWidth: 3,
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              "Loading questions...",
+              style: TextStyle(color: Colors.white70, fontSize: 16),
+            ),
+          ],
         ),
       );
     }
 
     if (exercises.isEmpty) {
       return Center(
-        child: Text(
-          "No questions available",
-          style: TextStyle(color: Colors.white, fontSize: 18),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.warning_amber_rounded, color: Colors.amber, size: 50),
+            const SizedBox(height: 16),
+            const Text(
+              "No questions available",
+              style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              "Please try again later",
+              style: TextStyle(color: Colors.white70, fontSize: 16),
+            ),
+          ],
         ),
       );
     }
@@ -352,40 +489,185 @@ class _QuizFlowScreenState extends State<QuizFlowScreen> with SingleTickerProvid
           begin: const Offset(0.05, 0),
           end: Offset.zero,
         ).animate(_animation),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            buildProgressIndicator(),
-            SizedBox(height: 24),
-            Container(
-              padding: EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Color.fromRGBO(47, 47, 66, 1),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Color(0xFFD3D3D3), width: 0.7),
-              ),
-              child: Text(
-                currentExercise.question,
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            SizedBox(height: 24),
-            buildOptionButton(currentExercise.answer1, 1),
-            buildOptionButton(currentExercise.answer2, 2),
-            buildOptionButton(currentExercise.answer3, 3),
-            buildOptionButton(currentExercise.answer4, 4),
-            SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: submitAnswer,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.purple,
-                padding: EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-              ),
-              child: Text(
-                'Submit Answer',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        child: CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  buildProgressIndicator(),
+                  const SizedBox(height: 24),
+                  
+                  // Question card with enhanced styling
+                  Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              const Color.fromRGBO(55, 55, 80, 1),
+                              const Color.fromRGBO(47, 47, 66, 1),
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.2),
+                              blurRadius: 10,
+                              spreadRadius: 1,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                          border: Border.all(
+                            color: Colors.purple.withOpacity(0.3),
+                            width: 1.5,
+                          ),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Question label
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: Colors.purple.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: Colors.purple.withOpacity(0.3),
+                                  width: 1,
+                                ),
+                              ),
+                              child: const Text(
+                                "QUESTION",
+                                style: TextStyle(
+                                  color: Colors.purpleAccent,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 1,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            // Question text
+                            Text(
+                              currentExercise.question,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                                height: 1.4,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      // Decorative elements
+                      Positioned(
+                        top: -10,
+                        right: -10,
+                        child: Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: Colors.purple.withOpacity(0.2),
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Colors.purple.withOpacity(0.3),
+                              width: 1.5,
+                            ),
+                          ),
+                          child: Center(
+                            child: Icon(
+                              Icons.help_outline,
+                              color: Colors.purple.withOpacity(0.7),
+                              size: 20,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  
+                  const SizedBox(height: 8),
+                  // Instructions text
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                    child: Text(
+                      "Select the correct answer:",
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 14,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ),
+                  
+                  // Answer options
+                  buildOptionButton(currentExercise.answer1, 1),
+                  buildOptionButton(currentExercise.answer2, 2),
+                  buildOptionButton(currentExercise.answer3, 3),
+                  buildOptionButton(currentExercise.answer4, 4),
+                  const SizedBox(height: 32),
+                  
+                  // Submit button with enhanced styling
+                  Container(
+                    height: 56,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.purple.withOpacity(0.3),
+                          blurRadius: 10,
+                          spreadRadius: 1,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: ElevatedButton(
+                      onPressed: submitAnswer,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        padding: EdgeInsets.zero,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      child: Ink(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [Colors.purple.shade700, Colors.purple.shade500],
+                            begin: Alignment.bottomLeft,
+                            end: Alignment.topRight,
+                          ),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Container(
+                          constraints: const BoxConstraints(minHeight: 56),
+                          alignment: Alignment.center,
+                          child: const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.check_circle, color: Colors.white),
+                              SizedBox(width: 8),
+                              Text(
+                                'Submit Answer',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -397,17 +679,24 @@ class _QuizFlowScreenState extends State<QuizFlowScreen> with SingleTickerProvid
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromRGBO(31, 31, 57, 1),
+      backgroundColor: const Color.fromRGBO(31, 31, 57, 1),
       key: _scaffoldKey,
       appBar: AppBar(
         centerTitle: true,
         title: Text(
-          widget.contentTitle,
-          style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+          "Quiz: ${widget.contentTitle}",
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
         ),
-        backgroundColor: Color.fromRGBO(31, 31, 57, 1),
+        backgroundColor: const Color.fromRGBO(31, 31, 57, 1),
         shadowColor: Colors.transparent,
-        iconTheme: IconThemeData(color: Colors.white),
+        iconTheme: const IconThemeData(color: Colors.white),
+        elevation: 0,
       ),
       body: SafeArea(
         child: Padding(
