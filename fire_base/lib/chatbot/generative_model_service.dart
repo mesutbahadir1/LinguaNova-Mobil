@@ -26,7 +26,7 @@ class GenerativeChatService {
       final aiResponse = response.body;
 
       // Geçmişi güncelle: Kullanıcı mesajını ve AI yanıtını ekle
-      _history += 'You: $message\nAI: $aiResponse\n';
+      _history += 'You: $message\nNovi: $aiResponse\n';
 
       return aiResponse; // Yanıtı döndür
     } else {

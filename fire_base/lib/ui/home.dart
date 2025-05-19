@@ -196,7 +196,7 @@ class _HomeState extends State<Home> {
       case 3:
         return ContentListScreen(key: UniqueKey(), type: 2);
       case 4:
-        return AccountScreen();
+        return ChatView();
       default:
         return _buildHomeContent();
     }
@@ -233,7 +233,7 @@ class _HomeState extends State<Home> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => ChatView(),
+                            builder: (context) => AccountScreen(),
                           ),
                         );
                       },

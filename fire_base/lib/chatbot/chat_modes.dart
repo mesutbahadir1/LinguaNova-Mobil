@@ -17,7 +17,7 @@ enum ChatMode {
   String get welcomeTitle {
     switch (this) {
       case ChatMode.chat:
-        return 'Welcome to LinguaNova Assistant';
+        return 'Welcome to Novi';
       case ChatMode.grammar:
         return 'Grammar Check Mode';
       case ChatMode.vocabulary:

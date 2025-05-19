@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import 'generative_model_view_model.dart';
 import 'chat_modes.dart';
+import 'novi_title.dart';
 
 class ChatView extends StatefulWidget {
   const ChatView({Key? key}) : super(key: key);
@@ -38,21 +39,15 @@ class _ChatViewState extends State<ChatView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-        title: const Text(
-          'LinguaNova Assistant',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
+        automaticallyImplyLeading: false,
+        title: NoviTitle(
+          text: 'Novi',
+          textColor: Colors.white,
+          glowColor: const Color(0xFF4B5EFF),
+          fontSize: 26,
         ),
         centerTitle: true,
-        backgroundColor: const Color(0xFF4B5EFF),
+        backgroundColor: const Color(0xFF0A1A35),
         elevation: 0,
         actions: [
           IconButton(
@@ -221,11 +216,11 @@ class _ChatViewState extends State<ChatView> {
   }
 
   Widget _buildMessageBubble(String message, bool isUserMessage) {
-    // Mesajı temizle (örneğin "You: " veya "AI: " kısmını kaldır)
+    // Mesajı temizle (örneğin "You: " veya "Novi: " kısmını kaldır)
     String cleanedMessage = message.startsWith("You: ")
         ? message.substring(5)
-        : message.startsWith("AI: ")
-        ? message.substring(4)
+        : message.startsWith("Novi: ")
+        ? message.substring(6)
         : message;
 
     return Align(
@@ -268,7 +263,7 @@ class _ChatViewState extends State<ChatView> {
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Text(
-                isUserMessage ? "You" : "AI",
+                isUserMessage ? "You" : "Novi",
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
                   color: Colors.white,
@@ -277,7 +272,7 @@ class _ChatViewState extends State<ChatView> {
               ),
             ),
             const SizedBox(height: 8),
-            // AI mesajları için çift yıldızları kalın yapmak istiyoruz
+            // Novi mesajları için çift yıldızları kalın yapmak istiyoruz
             isUserMessage
                 ? Text(
               cleanedMessage,
@@ -287,7 +282,7 @@ class _ChatViewState extends State<ChatView> {
                 height: 1.4,
               ),
             )
-                : _buildFormattedMessage(cleanedMessage), // AI mesajı için özel formatlama
+                : _buildFormattedMessage(cleanedMessage), // Novi mesajı için özel formatlama
           ],
         ),
       ),

@@ -42,7 +42,7 @@ class ChatViewModel extends ChangeNotifier {
     }
 
     // Add AI response to the list
-    _messages.add("AI: $response");
+    _messages.add("Novi: $response");
     notifyListeners();
   }
 
