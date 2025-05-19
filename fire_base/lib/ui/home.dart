@@ -373,7 +373,7 @@ class _HomeState extends State<Home> {
         itemBuilder: (context, index) {
           // Determine content type based on title
           int contentType = 1; // Default to Article
-          if (_activities[index].title.contains("Audio")) {
+          if (_activities[index].title.contains("Listening")) {
             contentType = 3;
           } else if (_activities[index].title.contains("Video")) {
             contentType = 2;

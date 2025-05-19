@@ -314,7 +314,7 @@ class _QuizFlowScreenState extends State<QuizFlowScreen> with SingleTickerProvid
                   ? const Icon(Icons.check, color: Colors.white, size: 16)
                   : Center(
                       child: Text(
-                        String.fromCharCode(index + 64), // A, B, C, D
+                        String.fromCharCode(index + 65), // A, B, C, D
                         style: TextStyle(
                           color: selected ? Colors.white : Colors.purple.withOpacity(0.7),
                           fontWeight: FontWeight.bold,
@@ -607,10 +607,10 @@ class _QuizFlowScreenState extends State<QuizFlowScreen> with SingleTickerProvid
                   ),
                   
                   // Answer options
-                  buildOptionButton(currentExercise.answer1, 1),
-                  buildOptionButton(currentExercise.answer2, 2),
-                  buildOptionButton(currentExercise.answer3, 3),
-                  buildOptionButton(currentExercise.answer4, 4),
+                  buildOptionButton(currentExercise.answer1, 0),
+                  buildOptionButton(currentExercise.answer2, 1),
+                  buildOptionButton(currentExercise.answer3, 2),
+                  buildOptionButton(currentExercise.answer4, 3),
                   const SizedBox(height: 32),
                   
                   // Submit button with enhanced styling
@@ -657,6 +657,7 @@ class _QuizFlowScreenState extends State<QuizFlowScreen> with SingleTickerProvid
                                 'Submit Answer',
                                 style: TextStyle(
                                   fontSize: 16,
+                                  color: Colors.white,
                                   fontWeight: FontWeight.bold,
                                   letterSpacing: 0.5,
                                 ),
