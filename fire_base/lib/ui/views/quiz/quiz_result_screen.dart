@@ -5,7 +5,6 @@ import 'dart:math';
 class QuizResultScreen extends StatefulWidget {
   final int correctAnswers;
   final int totalQuestions;
-  final double passThreshold;
   final VoidCallback onRetry;
   final VoidCallback onComplete;
 
@@ -13,7 +12,6 @@ class QuizResultScreen extends StatefulWidget {
     super.key,
     required this.correctAnswers,
     required this.totalQuestions,
-    required this.passThreshold,
     required this.onRetry,
     required this.onComplete,
   });
@@ -30,7 +28,7 @@ class _QuizResultScreenState extends State<QuizResultScreen> {
   void initState() {
     super.initState();
     _confettiController = ConfettiController(duration: const Duration(seconds: 3));
-    isPassed = (widget.correctAnswers / widget.totalQuestions) >= widget.passThreshold;
+    isPassed = widget.correctAnswers == widget.totalQuestions; // Must answer all questions correctly
 
     if (isPassed) {
       // Start confetti animation if passed
@@ -80,8 +78,8 @@ class _QuizResultScreenState extends State<QuizResultScreen> {
                 SizedBox(height: 8),
                 Text(
                   isPassed
-                      ? "You passed the quiz!"
-                      : "You didn't pass this time, but don't give up!",
+                      ? "Perfect! You answered all questions correctly!"
+                      : "You need to answer all questions correctly to pass.",
                   style: TextStyle(
                     fontSize: 18,
                     color: Colors.white70,
@@ -132,12 +130,13 @@ class _QuizResultScreenState extends State<QuizResultScreen> {
                 ),
                 SizedBox(height: 32),
 
-                // Pass threshold info
+                // Pass requirement info
                 Text(
-                  "Pass threshold: ${(widget.passThreshold * 100).toInt()}%",
+                  "Perfect score required to pass!",
                   style: TextStyle(
                     fontSize: 16,
                     color: Colors.white70,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
                 SizedBox(height: 48),

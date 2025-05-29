@@ -8,12 +8,12 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:http/io_client.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:audio_session/audio_session.dart';
 import '../../../app/constants/app_config.dart';
 import '../../../models/content_models.dart';
 import 'quiz_flow_screen.dart';
+import 'shorts_video_screen.dart';
 
 class ContentDetailScreen extends StatefulWidget {
   final int itemId;
@@ -37,9 +37,6 @@ class _ContentDetailScreenState extends State<ContentDetailScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   bool isLoading = false;
 
-  // For video player
-  YoutubePlayerController? _videoController;
-
   // For audio player
   AudioPlayer? _audioPlayer;
   bool isPlaying = false;
@@ -50,51 +47,26 @@ class _ContentDetailScreenState extends State<ContentDetailScreen> {
   void initState() {
     super.initState();
 
-    // Initialize video player if this is a video
+    // For video type, navigate directly to ShortsVideoScreen
     if (widget.type == 2 && widget.content.isNotEmpty) {
-      _initializeVideoPlayer();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ShortsVideoScreen(
+              itemId: widget.itemId,
+              title: widget.title,
+              videoUrl: widget.content,
+            ),
+          ),
+        );
+      });
+      return;
     }
 
     // Initialize audio player if this is audio
     if (widget.type == 3 && widget.content.isNotEmpty) {
       _setupAudio();
-    }
-  }
-
-  void _initializeVideoPlayer() {
-    try {
-      // Try to extract videoId directly from URL
-      final videoId = YoutubePlayer.convertUrlToId(widget.content.trim());
-      print("Attempting to extract video ID from: ${widget.content.trim()}");
-
-      if (videoId != null) {
-        print("Successfully extracted video ID: $videoId");
-        _videoController = YoutubePlayerController(
-          initialVideoId: videoId,
-          flags: const YoutubePlayerFlags(
-            autoPlay: false,
-            mute: false,
-          ),
-        );
-      } else {
-        // Fallback: Handle URLs with additional parameters or try direct ID
-        String possibleId = widget.content.trim();
-        // Check if content looks like an ID rather than a URL
-        if (!possibleId.contains('youtube.com') && !possibleId.contains('youtu.be')) {
-          print("Content might be a direct ID: $possibleId");
-          _videoController = YoutubePlayerController(
-            initialVideoId: possibleId,
-            flags: const YoutubePlayerFlags(
-              autoPlay: false,
-              mute: false,
-            ),
-          );
-        } else {
-          print("Could not extract YouTube video ID from URL: ${widget.content}");
-        }
-      }
-    } catch (e) {
-      print("Error initializing video player: $e");
     }
   }
 
@@ -106,7 +78,7 @@ class _ContentDetailScreenState extends State<ContentDetailScreen> {
       final session = await AudioSession.instance;
       await session.configure(AudioSessionConfiguration.speech());
 
-      String cleanAudioUrl = widget.content.trim();
+      String cleanAudioUrl = "$HTTPS_URL/audio/${widget.content.trim()}";
       print("Attempting to load audio from URL: $cleanAudioUrl");
 
       // Set audio source
@@ -369,199 +341,6 @@ class _ContentDetailScreenState extends State<ContentDetailScreen> {
     );
   }
 
-  Widget _buildVideoContent() {
-    if (_videoController == null) {
-      return Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.error_outline, color: Colors.red, size: 48),
-              const SizedBox(height: 16),
-              const Text("Video yüklenirken bir sorun oluştu",
-                  style: TextStyle(color: Colors.white, fontSize: 18)),
-              const SizedBox(height: 20),
-              Text("URL: ${widget.content}",
-                  style: const TextStyle(color: Colors.white70, fontSize: 14)),
-              const SizedBox(height: 30),
-              _buildCompleteButton(),
-            ],
-          )
-      );
-    }
-
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            // Video card with shadow
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(24),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.5),
-                    blurRadius: 15,
-                    spreadRadius: 2,
-                    offset: const Offset(0, 5),
-                  ),
-                ],
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(24),
-                child: Container(
-                  padding: const EdgeInsets.all(2),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [Colors.purple.shade700, Colors.purple.shade300],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(22),
-                    child: YoutubePlayer(
-                      controller: _videoController!,
-                      showVideoProgressIndicator: true,
-                      progressIndicatorColor: Colors.white,
-                      progressColors: const ProgressBarColors(
-                        playedColor: Colors.purple,
-                        handleColor: Colors.purpleAccent,
-                      ),
-                      onEnded: (metaData) {
-                        print("Video ended");
-                      },
-                    ),
-                  ),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 24),
-
-            // Video info card
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: const Color.fromRGBO(47, 47, 66, 1),
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
-                    blurRadius: 10,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Title
-                  Text(
-                    widget.title,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      letterSpacing: 0.5,
-                    ),
-                  ),
-                  
-                  const SizedBox(height: 16),
-                  
-                  // Video metadata
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                        decoration: BoxDecoration(
-                          color: Colors.purple.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(
-                            color: Colors.purple.withOpacity(0.3),
-                            width: 1,
-                          ),
-                        ),
-                        child: const Row(
-                          children: [
-                            Icon(Icons.videocam, color: Colors.white70, size: 14),
-                            SizedBox(width: 5),
-                            Text(
-                              "Video Lesson",
-                              style: TextStyle(color: Colors.white70, fontSize: 12),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  
-                  const SizedBox(height: 16),
-                  
-                  // Video description
-                  const Text(
-                    "",
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 14,
-                      height: 1.5,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 32),
-
-            // Quiz button with improved styling
-            GestureDetector(
-              onTap: _navigateToQuiz,
-              child: Container(
-                width: double.infinity,
-                height: 60,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Colors.purple.shade500, Colors.purple.shade800],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.purple.withOpacity(0.3),
-                      blurRadius: 8,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
-                ),
-                child: Center(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.quiz, color: Colors.white),
-                      const SizedBox(width: 8),
-                      Text(
-                        "Take Quiz",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildAudioContent() {
     if (_audioPlayer == null) {
       return Center(
@@ -650,7 +429,7 @@ class _ContentDetailScreenState extends State<ContentDetailScreen> {
                             children: [
                               // Image 
                               CachedNetworkImage(
-                                imageUrl: "https://source.unsplash.com/300x300/?music",
+                                imageUrl: "https://www.pngmart.com/files/23/Audio-PNG-Transparent.png",
                                 fit: BoxFit.cover,
                                 height: 260,
                                 width: 260,
@@ -907,7 +686,6 @@ class _ContentDetailScreenState extends State<ContentDetailScreen> {
 
   @override
   void dispose() {
-    _videoController?.dispose();
     _audioPlayer?.dispose();
     super.dispose();
   }
@@ -952,7 +730,13 @@ class _ContentDetailScreenState extends State<ContentDetailScreen> {
       case 1:
         return _buildArticleContent();
       case 2:
-        return _buildVideoContent();
+        // Video type redirects to ShortsVideoScreen, this shouldn't be reached
+        return const Center(
+          child: Text(
+            "Redirecting to video player...", 
+            style: TextStyle(color: Colors.white)
+          )
+        );
       case 3:
         return _buildAudioContent();
       default:

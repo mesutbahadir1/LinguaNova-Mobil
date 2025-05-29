@@ -126,6 +126,29 @@ class UserProgressModel {
 }
 
 // API Response Modelleri
+class UpdateTestResponseDto {
+  final bool success;
+  final bool levelUp;
+  final int? newLevel;
+  final String message;
+
+  UpdateTestResponseDto({
+    required this.success,
+    required this.levelUp,
+    this.newLevel,
+    required this.message,
+  });
+
+  factory UpdateTestResponseDto.fromJson(Map<String, dynamic> json) {
+    return UpdateTestResponseDto(
+      success: json['success'] ?? false,
+      levelUp: json['levelUp'] ?? false,
+      newLevel: json['newLevel'],
+      message: json['message'] ?? '',
+    );
+  }
+}
+
 class ArticleProgressDto {
   final int id;
   final String title;

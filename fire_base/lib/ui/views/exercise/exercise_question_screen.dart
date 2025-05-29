@@ -10,6 +10,8 @@ import 'package:responsive_sizer/responsive_sizer.dart';
 
 import '../../../app/constants/app_config.dart';
 import '../../../models/exercise_list_model.dart';
+import '../../../models/content_models.dart';
+import '../../widgets/level_up_animation.dart';
 
 class ExerciseQuestionScreen extends StatefulWidget {
   final ExerciseListModel exercise;
@@ -49,8 +51,23 @@ class _ExerciseQuestionScreenState extends State<ExerciseQuestionScreen> {
         body: jsonEncode({'isCorrect': isCorrect}),
       );
 
-      if (response.statusCode == 204) {
+      if (response.statusCode == 200) {
+        // Parse the new response format
+        final responseData = jsonDecode(response.body);
+        final updateResponse = UpdateTestResponseDto.fromJson(responseData);
+        
         print("Test progress updated successfully");
+        print("Level up: ${updateResponse.levelUp}");
+        print("New level: ${updateResponse.newLevel}");
+        
+        // Check if level up occurred
+        if (updateResponse.levelUp && updateResponse.newLevel != null) {
+          await _showLevelUpAnimation(updateResponse.newLevel!);
+        }
+        
+      } else if (response.statusCode == 204) {
+        // Handle old format for backward compatibility
+        print("Test progress updated successfully (old format)");
       } else if (response.headers.containsKey('location')) {
         // Eğer yönlendirme varsa yeni URL'ye tekrar istek yap
         final newUrl = response.headers['location'];
@@ -60,8 +77,18 @@ class _ExerciseQuestionScreenState extends State<ExerciseQuestionScreen> {
             headers: {'Content-Type': 'application/json'},
             body: jsonEncode({'isCorrect': isCorrect}),
           );
-          if (redirectedResponse.statusCode == 204) {
+          
+          if (redirectedResponse.statusCode == 200) {
+            final responseData = jsonDecode(redirectedResponse.body);
+            final updateResponse = UpdateTestResponseDto.fromJson(responseData);
+            
             print("Test progress updated successfully after redirect");
+            
+            if (updateResponse.levelUp && updateResponse.newLevel != null) {
+              await _showLevelUpAnimation(updateResponse.newLevel!);
+            }
+          } else if (redirectedResponse.statusCode == 204) {
+            print("Test progress updated successfully after redirect (old format)");
           } else {
             print("Failed after redirect: ${redirectedResponse.body}");
           }
@@ -74,11 +101,26 @@ class _ExerciseQuestionScreenState extends State<ExerciseQuestionScreen> {
     }
   }
 
+  Future<void> _showLevelUpAnimation(int newLevel) async {
+    return showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => LevelUpAnimationDialog(
+        newLevel: newLevel,
+        onComplete: () {
+          print("Level up animation completed for level: $newLevel");
+        },
+      ),
+    );
+  }
+
   void validateAnswers() {
     bool isCorrect = selectedOptions.isNotEmpty && selectedOptions.first == widget.exercise.correctAnswerIndex;
 
     if (isCorrect) {
       updateIsCorrectStatus(widget.exercise.testProgressId, true);
+    } else {
+      updateIsCorrectStatus(widget.exercise.testProgressId, false);
     }
 
     QuickAlert.show(

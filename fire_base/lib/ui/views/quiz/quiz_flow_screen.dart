@@ -9,6 +9,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../app/constants/app_config.dart';
 import '../../../models/exercise_list_model.dart';
+import '../../../models/content_models.dart';
+import '../../widgets/level_up_animation.dart';
 import 'quiz_result_screen.dart';
 
 class QuizFlowScreen extends StatefulWidget {
@@ -43,8 +45,7 @@ class _QuizFlowScreenState extends State<QuizFlowScreen> with SingleTickerProvid
   late AnimationController _animationController;
   late Animation<double> _animation;
 
-  // Pass threshold (e.g., 70%)
-  final double passThreshold = 0.7;
+
 
   @override
   void initState() {
@@ -153,8 +154,23 @@ class _QuizFlowScreenState extends State<QuizFlowScreen> with SingleTickerProvid
         body: jsonEncode({'isCorrect': isCorrect}),
       );
 
-      if (response.statusCode == 204) {
+      if (response.statusCode == 200) {
+        // Parse the new response format
+        final responseData = jsonDecode(response.body);
+        final updateResponse = UpdateTestResponseDto.fromJson(responseData);
+        
         print("Test progress updated successfully");
+        print("Level up: ${updateResponse.levelUp}");
+        print("New level: ${updateResponse.newLevel}");
+        
+        // Check if level up occurred
+        if (updateResponse.levelUp && updateResponse.newLevel != null) {
+          await _showLevelUpAnimation(updateResponse.newLevel!);
+        }
+        
+      } else if (response.statusCode == 204) {
+        // Handle old format for backward compatibility
+        print("Test progress updated successfully (old format)");
       } else if (response.headers.containsKey('location')) {
         // If there's a redirect, follow it
         final newUrl = response.headers['location'];
@@ -164,8 +180,18 @@ class _QuizFlowScreenState extends State<QuizFlowScreen> with SingleTickerProvid
             headers: {'Content-Type': 'application/json'},
             body: jsonEncode({'isCorrect': isCorrect}),
           );
-          if (redirectedResponse.statusCode == 204) {
+          
+          if (redirectedResponse.statusCode == 200) {
+            final responseData = jsonDecode(redirectedResponse.body);
+            final updateResponse = UpdateTestResponseDto.fromJson(responseData);
+            
             print("Test progress updated successfully after redirect");
+            
+            if (updateResponse.levelUp && updateResponse.newLevel != null) {
+              await _showLevelUpAnimation(updateResponse.newLevel!);
+            }
+          } else if (redirectedResponse.statusCode == 204) {
+            print("Test progress updated successfully after redirect (old format)");
           } else {
             print("Failed after redirect: ${redirectedResponse.body}");
           }
@@ -176,6 +202,20 @@ class _QuizFlowScreenState extends State<QuizFlowScreen> with SingleTickerProvid
     } catch (e) {
       print("Error: $e");
     }
+  }
+
+  Future<void> _showLevelUpAnimation(int newLevel) async {
+    return showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => LevelUpAnimationDialog(
+        newLevel: newLevel,
+        onComplete: () {
+          // Level up animasyonu tamamlandıktan sonra yapılacak işlemler
+          print("Level up animation completed for level: $newLevel");
+        },
+      ),
+    );
   }
 
   void selectAnswer(int answerIndex) {
@@ -238,7 +278,6 @@ class _QuizFlowScreenState extends State<QuizFlowScreen> with SingleTickerProvid
         builder: (context) => QuizResultScreen(
           correctAnswers: correctAnswersCount,
           totalQuestions: totalQuestions,
-          passThreshold: passThreshold,
           onRetry: () {
             Navigator.of(context).pop(); // Close result screen
             // Reset quiz state

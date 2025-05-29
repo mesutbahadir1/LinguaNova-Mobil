@@ -277,17 +277,6 @@ class _ContentListScreenState extends State<ContentListScreen> {
         backgroundColor: Color.fromRGBO(31, 31, 57, 1),
         shadowColor: Colors.transparent,
         iconTheme: IconThemeData(color: Colors.white),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.refresh),
-            onPressed: () {
-              setState(() {
-                isLoading = true;
-              });
-              _loadUserIdAndFetchContent();
-            },
-          ),
-        ],
       ),
       body: isLoading
           ? Center(child: CircularProgressIndicator(color: Colors.white))
@@ -368,19 +357,65 @@ class _ContentListScreenState extends State<ContentListScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Image area
+                // Custom Article Design
                 Stack(
                   children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(12),
-                        topRight: Radius.circular(12),
+                    Container(
+                      height: 180,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(12),
+                          topRight: Radius.circular(12),
+                        ),
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            Color(0xFF6B73FF),
+                            Color(0xFF9B59B6),
+                            Color(0xFF8E44AD),
+                          ],
+                        ),
                       ),
-                      child: CachedNetworkImage(
-                        imageUrl: "https://app.talentifylab.com/vendor/website/resized-images/e.g8.png",
-                        height: 180,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
+                      child: Stack(
+                        children: [
+                          // Background pattern
+                          Positioned.fill(
+                            child: CustomPaint(
+                              painter: ArticlePatternPainter(),
+                            ),
+                          ),
+                          // Article icon and text
+                          Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  padding: EdgeInsets.all(20),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.2),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    Icons.article_outlined,
+                                    size: 48,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                SizedBox(height: 12),
+                                Text(
+                                  "Article",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 1.2,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     // Completed Badge
@@ -517,35 +552,65 @@ class _ContentListScreenState extends State<ContentListScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Video thumbnail with play icon overlay
+                // Custom Video Design
                 Stack(
                   children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(12),
-                        topRight: Radius.circular(12),
-                      ),
-                      child: CachedNetworkImage(
-                        imageUrl: "https://app.talentifylab.com/vendor/website/resized-images/e.g2.png",
-                        height: 180,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    Positioned.fill(
-                      child: Center(
-                        child: Container(
-                          padding: EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.5),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            Icons.play_arrow,
-                            color: Colors.white,
-                            size: 36,
-                          ),
+                    Container(
+                      height: 180,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(12),
+                          topRight: Radius.circular(12),
                         ),
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            Color(0xFFFF6B6B),
+                            Color(0xFFFF8E53),
+                            Color(0xFFFF5722),
+                          ],
+                        ),
+                      ),
+                      child: Stack(
+                        children: [
+                          // Background pattern
+                          Positioned.fill(
+                            child: CustomPaint(
+                              painter: VideoPatternPainter(),
+                            ),
+                          ),
+                          // Play button and video elements
+                          Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  padding: EdgeInsets.all(20),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.2),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    Icons.play_arrow,
+                                    size: 48,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                SizedBox(height: 12),
+                                Text(
+                                  "Video",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 1.2,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     if (video.isCompleted)
@@ -771,4 +836,74 @@ class _ContentListScreenState extends State<ContentListScreen> {
       },
     );
   }
+}
+
+// Custom painters for background patterns
+class ArticlePatternPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.white.withOpacity(0.1)
+      ..strokeWidth = 1.0
+      ..style = PaintingStyle.stroke;
+
+    // Draw diagonal lines
+    for (int i = 0; i < size.width; i += 20) {
+      canvas.drawLine(
+        Offset(i.toDouble(), 0),
+        Offset(i.toDouble() + size.height, size.height),
+        paint,
+      );
+    }
+
+    // Draw circles
+    for (int i = 0; i < 5; i++) {
+      canvas.drawCircle(
+        Offset(
+          size.width * (i + 1) / 6,
+          size.height * (i + 1) / 6,
+        ),
+        20,
+        paint,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class VideoPatternPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.white.withOpacity(0.1)
+      ..strokeWidth = 1.0
+      ..style = PaintingStyle.stroke;
+
+    // Draw horizontal lines
+    for (int i = 0; i < size.height; i += 20) {
+      canvas.drawLine(
+        Offset(0, i.toDouble()),
+        Offset(size.width, i.toDouble()),
+        paint,
+      );
+    }
+
+    // Draw squares
+    for (int i = 0; i < 4; i++) {
+      canvas.drawRect(
+        Rect.fromLTWH(
+          size.width * (i + 1) / 5,
+          size.height * (i + 1) / 5,
+          30,
+          30,
+        ),
+        paint,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

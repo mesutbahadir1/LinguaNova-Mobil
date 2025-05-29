@@ -49,14 +49,6 @@ class _ChatViewState extends State<ChatView> {
         centerTitle: true,
         backgroundColor: const Color(0xFF0A1A35),
         elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh, color: Colors.white), // Açık mavi renk
-            onPressed: () {
-              Provider.of<ChatViewModel>(context, listen: false).clearChat();
-            },
-          ),
-        ],
       ),
       body: Container(
         decoration: const BoxDecoration(
