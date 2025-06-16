@@ -71,6 +71,9 @@ class _ContentDetailScreenState extends State<ContentDetailScreen> {
   }
 
   Future<void> _setupAudio() async {
+    HttpClient client = HttpClient()
+      ..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+    IOClient ioClient = IOClient(client);
     try {
       _audioPlayer = AudioPlayer();
 
@@ -78,7 +81,7 @@ class _ContentDetailScreenState extends State<ContentDetailScreen> {
       final session = await AudioSession.instance;
       await session.configure(AudioSessionConfiguration.speech());
 
-      String cleanAudioUrl = "$HTTPS_URL/audio/${widget.content.trim()}";
+      String cleanAudioUrl = "https://ahmetburakozen.com/audio/${widget.content.trim()}";
       print("Attempting to load audio from URL: $cleanAudioUrl");
 
       // Set audio source
