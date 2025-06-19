@@ -10,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../app/constants/app_config.dart';
 import '../../../models/exercise_list_model.dart';
 import '../../../models/content_models.dart';
+import '../../home.dart';
 import '../../widgets/level_up_animation.dart';
 import 'quiz_result_screen.dart';
 
@@ -189,9 +190,15 @@ class _QuizFlowScreenState extends State<QuizFlowScreen> with SingleTickerProvid
       builder: (context) => LevelUpAnimationDialog(
         newLevel: newLevel,
         onComplete: () {
-          Navigator.of(context).pop(); // Dialog'u kapat
-          // Level up animasyonu tamamlandıktan sonra ana ekrana dön
-          Navigator.of(context).pop(); // QuizFlowScreen'den çık
+          // Navigator.of(context).pop(); // Dialog'u kapat
+          // // Level up animasyonu tamamlandıktan sonra ana ekrana dön
+          // Navigator.of(context).pop(); // QuizFlowScreen'den çık
+          Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => Home(),
+          ),
+        );
           print("Level up animation completed for level: $newLevel");
         },
       ),
@@ -274,6 +281,7 @@ class _QuizFlowScreenState extends State<QuizFlowScreen> with SingleTickerProvid
           onComplete: () {
             Navigator.of(context).pop(); // Close result screen
             Navigator.of(context).pop(); // Return to content screen
+            Navigator.of(context).pop();
           },
         ),
       ),
