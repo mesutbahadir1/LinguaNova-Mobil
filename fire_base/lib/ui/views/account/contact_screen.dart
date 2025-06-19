@@ -68,7 +68,7 @@ class _ContactScreenState extends State<ContactScreen> {
                   onTap: () {
                     showTel();
                   },
-                  child: _buildContactContainer('assets/icons/phone.png', "Call Us", "+1 (917) 266-0005"),
+                  child: _buildContactContainer('assets/icons/phone.png', "Call Us", "+1 (111) 111-1111"),
                 ),
                 GestureDetector(
                   onTap: () {
@@ -83,10 +83,9 @@ class _ContactScreenState extends State<ContactScreen> {
               "Contact us In Social Media",
               style: TextStyle(color: Colors.grey, fontSize: 15),
             ),
-            _buildSocialMediaContainer(context, "https://talentifylab.com/en", "LinguaNova Website", "icon"),
-            _buildSocialMediaContainer(context, "https://www.instagram.com/talentifylab/", "LinguaNova Instagram", "instagram"),
-            _buildSocialMediaContainer(context, "https://twitter.com/TalentifyLAB", "LinguaNova X", "twitter"),
-            _buildSocialMediaContainer(context, "https://www.linkedin.com/company/talentifylab/mycompany/", "LinguaNova LinkedIn", "linkedin"),
+            _buildSocialMediaContainer(context, "https://www.instagram.com/linguaNova/", "LinguaNova Instagram", "instagram"),
+            _buildSocialMediaContainer(context, "https://twitter.com/linguaNova", "LinguaNova X", "twitter"),
+            _buildSocialMediaContainer(context, "https://www.linkedin.com/company/linguaNova/", "LinguaNova LinkedIn", "linkedin"),
           ],
         ),
       ),
@@ -153,7 +152,7 @@ class _ContactScreenState extends State<ContactScreen> {
           SizedBox(
             width: 15,
           ),
-          Text("8 The Green STE A, Dover Delaware 19901", style: TextStyle(fontSize: 15)),
+          Text("Fatih Sultan Mehmet Vakif University", style: TextStyle(fontSize: 15)),
         ],
       ),
     );

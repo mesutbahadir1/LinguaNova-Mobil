@@ -1,3 +1,4 @@
+import 'package:fire_base/auth/login.dart';
 import 'package:fire_base/ui/views/account/contact_screen.dart';
 import 'package:fire_base/ui/views/profile/edit_profile_screen.dart';
 import 'package:flutter/material.dart';
@@ -95,6 +96,12 @@ class _AccountScreenState extends State<AccountScreen> {
                 trailing: Icon(Icons.logout, size: 20, color: Colors.white,),
                 onTap: () async {
                   AuthServices().signOut();
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => LoginPage(),
+                    ),
+                  );
                 },
               ),
             ),

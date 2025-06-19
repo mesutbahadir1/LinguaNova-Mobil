@@ -45,8 +45,6 @@ class _QuizFlowScreenState extends State<QuizFlowScreen> with SingleTickerProvid
   late AnimationController _animationController;
   late Animation<double> _animation;
 
-
-
   @override
   void initState() {
     super.initState();
@@ -155,47 +153,27 @@ class _QuizFlowScreenState extends State<QuizFlowScreen> with SingleTickerProvid
       );
 
       if (response.statusCode == 200) {
-        // Parse the new response format
+        // Parse the response
         final responseData = jsonDecode(response.body);
         final updateResponse = UpdateTestResponseDto.fromJson(responseData);
-        
+
         print("Test progress updated successfully");
         print("Level up: ${updateResponse.levelUp}");
         print("New level: ${updateResponse.newLevel}");
-        
-        // Check if level up occurred
-        if (updateResponse.levelUp && updateResponse.newLevel != null) {
-          await _showLevelUpAnimation(updateResponse.newLevel!);
+
+        // Eğer cevap doğru ise
+        if (isCorrect) {
+          // Level atlandı mı kontrol et
+          if (updateResponse.levelUp && updateResponse.newLevel != null) {
+            // Level atlandıysa LevelUpAnimationDialog göster
+            await _showLevelUpAnimation(updateResponse.newLevel!);
+          }
+          // Level atlanmadıysa normal quiz akışına devam et (finishQuiz çağrılacak)
         }
-        
+
       } else if (response.statusCode == 204) {
         // Handle old format for backward compatibility
         print("Test progress updated successfully (old format)");
-      } else if (response.headers.containsKey('location')) {
-        // If there's a redirect, follow it
-        final newUrl = response.headers['location'];
-        if (newUrl != null) {
-          final redirectedResponse = await ioClient.put(
-            Uri.parse(newUrl),
-            headers: {'Content-Type': 'application/json'},
-            body: jsonEncode({'isCorrect': isCorrect}),
-          );
-          
-          if (redirectedResponse.statusCode == 200) {
-            final responseData = jsonDecode(redirectedResponse.body);
-            final updateResponse = UpdateTestResponseDto.fromJson(responseData);
-            
-            print("Test progress updated successfully after redirect");
-            
-            if (updateResponse.levelUp && updateResponse.newLevel != null) {
-              await _showLevelUpAnimation(updateResponse.newLevel!);
-            }
-          } else if (redirectedResponse.statusCode == 204) {
-            print("Test progress updated successfully after redirect (old format)");
-          } else {
-            print("Failed after redirect: ${redirectedResponse.body}");
-          }
-        }
       } else {
         print("Failed to update test progress: ${response.body}");
       }
@@ -211,7 +189,9 @@ class _QuizFlowScreenState extends State<QuizFlowScreen> with SingleTickerProvid
       builder: (context) => LevelUpAnimationDialog(
         newLevel: newLevel,
         onComplete: () {
-          // Level up animasyonu tamamlandıktan sonra yapılacak işlemler
+          Navigator.of(context).pop(); // Dialog'u kapat
+          // Level up animasyonu tamamlandıktan sonra ana ekrana dön
+          Navigator.of(context).pop(); // QuizFlowScreen'den çık
           print("Level up animation completed for level: $newLevel");
         },
       ),
@@ -247,7 +227,7 @@ class _QuizFlowScreenState extends State<QuizFlowScreen> with SingleTickerProvid
       answerResults[currentQuestionIndex] = isCorrect;
     });
 
-    // Update backend
+    // Update backend - bu method içinde level kontrolü yapılacak
     await updateIsCorrectStatus(currentExercise.testProgressId, isCorrect);
 
     if (currentQuestionIndex < exercises.length - 1) {
@@ -259,7 +239,8 @@ class _QuizFlowScreenState extends State<QuizFlowScreen> with SingleTickerProvid
         _animationController.forward();
       });
     } else {
-      // End of quiz
+      // End of quiz - sadece level atlanmadıysa result screen'i göster
+      // Level atlandıysa zaten LevelUpAnimationDialog gösterildi
       finishQuiz();
     }
   }
@@ -326,13 +307,13 @@ class _QuizFlowScreenState extends State<QuizFlowScreen> with SingleTickerProvid
           ],
           gradient: selected
               ? LinearGradient(
-                  colors: [
-                    const Color.fromRGBO(47, 47, 66, 1),
-                    Colors.purple.withOpacity(0.3),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                )
+            colors: [
+              const Color.fromRGBO(47, 47, 66, 1),
+              Colors.purple.withOpacity(0.3),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          )
               : null,
         ),
         child: Row(
@@ -352,15 +333,15 @@ class _QuizFlowScreenState extends State<QuizFlowScreen> with SingleTickerProvid
               child: selected
                   ? const Icon(Icons.check, color: Colors.white, size: 16)
                   : Center(
-                      child: Text(
-                        String.fromCharCode(index + 65), // A, B, C, D
-                        style: TextStyle(
-                          color: selected ? Colors.white : Colors.purple.withOpacity(0.7),
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ),
+                child: Text(
+                  String.fromCharCode(index + 65), // A, B, C, D
+                  style: TextStyle(
+                    color: selected ? Colors.white : Colors.purple.withOpacity(0.7),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
             ),
             const SizedBox(width: 14),
             // Answer text
@@ -536,7 +517,7 @@ class _QuizFlowScreenState extends State<QuizFlowScreen> with SingleTickerProvid
                 children: [
                   buildProgressIndicator(),
                   const SizedBox(height: 24),
-                  
+
                   // Question card with enhanced styling
                   Stack(
                     clipBehavior: Clip.none,
@@ -630,7 +611,7 @@ class _QuizFlowScreenState extends State<QuizFlowScreen> with SingleTickerProvid
                       ),
                     ],
                   ),
-                  
+
                   const SizedBox(height: 8),
                   // Instructions text
                   Padding(
@@ -644,14 +625,14 @@ class _QuizFlowScreenState extends State<QuizFlowScreen> with SingleTickerProvid
                       ),
                     ),
                   ),
-                  
+
                   // Answer options
                   buildOptionButton(currentExercise.answer1, 0),
                   buildOptionButton(currentExercise.answer2, 1),
                   buildOptionButton(currentExercise.answer3, 2),
                   buildOptionButton(currentExercise.answer4, 3),
                   const SizedBox(height: 32),
-                  
+
                   // Submit button with enhanced styling
                   Container(
                     height: 56,

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:confetti/confetti.dart';
 
+import '../home.dart';
+
 class LevelUpAnimationDialog extends StatefulWidget {
   final int newLevel;
   final VoidCallback? onComplete;
@@ -83,7 +85,12 @@ class _LevelUpAnimationDialogState extends State<LevelUpAnimationDialog>
   }
 
   void _closeDialog() {
-    Navigator.of(context).pop();
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const Home(),
+      ),
+    );
     if (widget.onComplete != null) {
       widget.onComplete!();
     }

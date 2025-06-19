@@ -64,6 +64,7 @@ class _HomeState extends State<Home> {
   void initState() {
     super.initState();
     _loadUserId();
+    _checkForRefresh();
   }
 
   void _loadUserId() async {
@@ -167,7 +168,22 @@ class _HomeState extends State<Home> {
     }
   }
 
-  @override
+// Add this method to check if Home should refresh
+  void _checkForRefresh() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int? lastTab = prefs.getInt('lastContentTab');
+
+    // If we're coming back to Home tab (index 0), refresh the data
+    if (lastTab == 0) {
+      print('Home: Refreshing data due to tab navigation');
+      if (userId != null) {
+        await _fetchUserProgress(userId!);
+        await _fetchUserName(userId!);
+      }
+    }
+  }
+
+  // Modify your existing onIndexChanged callback in the build method:
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color.fromRGBO(31, 31, 57, 1),
@@ -179,6 +195,12 @@ class _HomeState extends State<Home> {
           setState(() {
             _selectedIndex = index;
           });
+
+          // If navigating to Home tab, refresh the data
+          if (index == 0 && userId != null) {
+            _fetchUserProgress(userId!);
+            _fetchUserName(userId!);
+          }
         },
       ),
       body: _buildBody(),
